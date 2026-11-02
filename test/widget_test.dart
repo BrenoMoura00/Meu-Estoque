@@ -16,6 +16,28 @@ void main() {
     expect(find.text('Categorias'), findsOneWidget);
   });
 
+  testWidgets('Adicionar Item: abre pelo "+", exige nome e salva', (tester) async {
+    tester.view.physicalSize = const Size(390 * 3, 1400 * 3);
+    tester.view.devicePixelRatio = 3;
+    addTearDown(tester.view.reset);
+
+    await tester.pumpWidget(const MeuEstoqueApp());
+    await tester.tap(find.bySemanticsLabel('Adicionar novo alimento'));
+    await tester.pumpAndSettle();
+    expect(find.text('Adicionar Item'), findsOneWidget);
+
+    await tester.tap(find.text('Salvar no Estoque'));
+    await tester.pump();
+    expect(find.text('Informe o nome do produto'), findsOneWidget);
+
+    await tester.enterText(find.byType(TextField).first, 'Tomate Italiano');
+    await tester.tap(find.text('+1 semana'));
+    await tester.tap(find.text('Salvar no Estoque'));
+    await tester.pumpAndSettle();
+    expect(find.text('Adicionar Item'), findsNothing);
+    expect(find.text('"Tomate Italiano" salvo no estoque'), findsOneWidget);
+  });
+
   testWidgets('Estoque filtra por status e por busca', (tester) async {
     tester.view.physicalSize = const Size(390 * 3, 2400 * 3);
     tester.view.devicePixelRatio = 3;

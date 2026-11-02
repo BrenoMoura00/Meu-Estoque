@@ -20,6 +20,7 @@ abstract final class AppColors {
   static const surfaceInverse = Color(0xF2283044); // rgba(40,48,68,0.95)
   static const onSurfaceInverseVariant = Color(0xFFBCCAC0);
   static const outline = Color(0xFF6D7A72);
+  static const placeholder = Color(0xFF9CA3AF);
   static const track = Color(0xFFDAE2FD);
 
   // Texto

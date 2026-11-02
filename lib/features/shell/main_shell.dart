@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../core/theme/app_text_styles.dart';
 import '../../shared/widgets/app_bottom_nav.dart';
 import '../../shared/widgets/app_top_bar.dart';
+import '../add_product/presentation/add_product_page.dart';
 import '../home/presentation/home_page.dart';
 import '../stock/presentation/stock_page.dart';
 
@@ -35,9 +36,9 @@ class _MainShellState extends State<MainShell> {
         current: _tab,
         shoppingBadge: 4,
         onTabSelected: (tab) => setState(() => _tab = tab),
-        onAdd: () {
-          // TODO: abrir fluxo "Adicionar alimento" quando a tela existir no Figma.
-        },
+        onAdd: () => Navigator.of(context).push(
+          MaterialPageRoute<void>(builder: (_) => const AddProductPage()),
+        ),
       ),
     );
   }
