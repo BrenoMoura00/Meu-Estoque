@@ -42,10 +42,13 @@ class ExpiringTodayBanner extends StatelessWidget {
                           decoration: const BoxDecoration(color: AppColors.error, shape: BoxShape.circle),
                         ),
                         const SizedBox(width: 4),
-                        Text(
-                          'ATENÇÃO PRIORITÁRIA',
-                          style: AppTextStyles.caption
-                              .copyWith(color: AppColors.onErrorContainer, letterSpacing: 0.55),
+                        Flexible(
+                          child: Text(
+                            'ATENÇÃO PRIORITÁRIA',
+                            style: AppTextStyles.caption
+                                .copyWith(color: AppColors.onErrorContainer, letterSpacing: 0.55),
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         ),
                       ],
                     ),
@@ -89,10 +92,14 @@ class ExpiringTodayBanner extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                '${formatBRL(valueAtRisk)} em risco hoje',
-                style: AppTextStyles.label.copyWith(color: AppColors.error, letterSpacing: 0, height: 18 / 12),
+              Flexible(
+                child: Text(
+                  '${formatBRL(valueAtRisk)} em risco hoje',
+                  style: AppTextStyles.label.copyWith(color: AppColors.error, letterSpacing: 0, height: 18 / 12),
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
+              const SizedBox(width: 8),
               InkWell(
                 onTap: onSeeAll,
                 borderRadius: BorderRadius.circular(8),

@@ -42,3 +42,11 @@ assets/images/ PNGs do Figma
 - Plano Starter = poucas chamadas/mês: pedir **um frame por vez** e não repetir leituras de telas já implementadas.
 - Telas implementadas:
   - Início — node `12:689` → `features/home/presentation/home_page.dart`
+  - Estoque — node `12:1057` → `features/stock/presentation/stock_page.dart` (filtros locais de busca/local/status)
+
+## Domínio
+- Validade: `Product.status` → `ExpiryStatus.today` (≤0 dias), `soon` (≤ `Product.soonThresholdDays` = 4), `ok`.
+  Use sempre esse enum para cores/textos de validade; não repita limiares nas telas.
+
+## Git
+- Uma branch por tela/feature (`feat/tela-<nome>`), mensagens de commit em pt-BR.

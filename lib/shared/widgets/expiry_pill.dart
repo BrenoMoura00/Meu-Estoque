@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../core/constants/app_assets.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_text_styles.dart';
+import '../../models/product.dart';
 import 'app_svg.dart';
 
 /// Pílula "Vence em X dias" — laranja se ≤ 3 dias, verde caso contrário.
@@ -13,7 +14,7 @@ class ExpiryPill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final soon = daysToExpire <= 3;
+    final soon = daysToExpire <= Product.soonThresholdDays;
     final fg = soon ? AppColors.onWarningContainer : AppColors.onMint;
     final label = daysToExpire <= 0
         ? 'Vence hoje'
@@ -32,7 +33,14 @@ class ExpiryPill extends StatelessWidget {
               ? const AppSvg(AppIcons.warningClock, width: 10.5, height: 12.25)
               : const AppSvg(AppIcons.check, width: 9.5, height: 7),
           const SizedBox(width: 4),
-          Text(label, style: AppTextStyles.captionMedium.copyWith(color: fg)),
+          Flexible(
+            child: Text(
+              label,
+              style: AppTextStyles.captionMedium.copyWith(color: fg),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
         ],
       ),
     );

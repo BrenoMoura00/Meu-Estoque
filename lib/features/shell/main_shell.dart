@@ -4,6 +4,7 @@ import '../../core/theme/app_text_styles.dart';
 import '../../shared/widgets/app_bottom_nav.dart';
 import '../../shared/widgets/app_top_bar.dart';
 import '../home/presentation/home_page.dart';
+import '../stock/presentation/stock_page.dart';
 
 /// Estrutura principal: header + conteúdo da aba + bottom nav.
 class MainShell extends StatefulWidget {
@@ -25,8 +26,9 @@ class _MainShellState extends State<MainShell> {
       body: IndexedStack(
         index: _tab.index,
         children: [
-          const HomePage(),
-          for (final tab in AppTab.values.skip(1)) _PlaceholderPage(title: tab.label),
+          HomePage(onSeeStock: () => setState(() => _tab = AppTab.estoque)),
+          const StockPage(),
+          for (final tab in AppTab.values.skip(2)) _PlaceholderPage(title: tab.label),
         ],
       ),
       bottomNavigationBar: AppBottomNav(

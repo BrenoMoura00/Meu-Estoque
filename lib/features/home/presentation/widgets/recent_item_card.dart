@@ -52,7 +52,7 @@ class RecentItemCard extends StatelessWidget {
                     const SizedBox(height: 2),
                     Row(
                       children: [
-                        _LocationTag(location: product.location),
+                        Flexible(child: _LocationTag(location: product.location)),
                         const SizedBox(width: 6),
                         Flexible(
                           child: Text(
@@ -68,7 +68,7 @@ class RecentItemCard extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 8),
-              ExpiryPill(daysToExpire: product.daysToExpire),
+              Flexible(child: ExpiryPill(daysToExpire: product.daysToExpire)),
             ],
           ),
           const SizedBox(height: 8),
@@ -122,7 +122,7 @@ class _LocationTag extends StatelessWidget {
         children: [
           AppSvg(location.tagIcon, height: 11),
           const SizedBox(width: 4),
-          Text(location.label, style: AppTextStyles.tag),
+          Flexible(child: Text(location.label, style: AppTextStyles.tag, overflow: TextOverflow.ellipsis)),
         ],
       ),
     );
