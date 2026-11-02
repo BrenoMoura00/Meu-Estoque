@@ -1,0 +1,22 @@
+import 'package:flutter/material.dart';
+
+import 'core/theme/app_theme.dart';
+import 'features/shell/main_shell.dart';
+
+void main() {
+  runApp(const MeuEstoqueApp());
+}
+
+class MeuEstoqueApp extends StatelessWidget {
+  const MeuEstoqueApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Meu Estoque',
+      debugShowCheckedModeBanner: false,
+      theme: AppTheme.light,
+      home: const MainShell(),
+    );
+  }
+}
