@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../shared/widgets/section_header.dart';
+import '../../consumption_history/presentation/consumption_history_page.dart';
 import '../data/home_mock_data.dart';
 import 'widgets/category_chips.dart';
 import 'widgets/expiring_today_banner.dart';
@@ -33,7 +34,13 @@ class HomePage extends StatelessWidget {
           valueAtRisk: HomeMockData.valueAtRiskToday,
         ),
         _gap,
-        const SavingsPill(amount: HomeMockData.monthlySavings, growthPercent: HomeMockData.savingsGrowth),
+        SavingsPill(
+          amount: HomeMockData.monthlySavings,
+          growthPercent: HomeMockData.savingsGrowth,
+          onTap: () => Navigator.of(context).push(
+            MaterialPageRoute<void>(builder: (_) => const ConsumptionHistoryPage()),
+          ),
+        ),
         _gap,
         CategoryChips(categories: HomeMockData.categories),
         _gap,

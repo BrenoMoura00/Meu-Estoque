@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:meu_estoque/features/consumption_history/presentation/widgets/consumption_rank_card.dart';
 import 'package:meu_estoque/features/stock/presentation/widgets/stock_item_card.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:meu_estoque/main.dart';
@@ -36,6 +37,27 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Adicionar Item'), findsNothing);
     expect(find.text('"Tomate Italiano" salvo no estoque'), findsOneWidget);
+  });
+
+  testWidgets('Histórico de Consumo: abre pela economia do mês e troca de visão', (tester) async {
+    tester.view.physicalSize = const Size(390 * 3, 1400 * 3);
+    tester.view.devicePixelRatio = 3;
+    addTearDown(tester.view.reset);
+
+    await tester.pumpWidget(const MeuEstoqueApp());
+    await tester.tap(find.text('Economia inteligente do mês'));
+    await tester.pumpAndSettle();
+    expect(find.text('Histórico de Consumo'), findsOneWidget);
+    expect(find.text('Ranking de Itens'), findsOneWidget);
+    expect(find.byType(ConsumptionRankCard), findsNWidgets(6));
+
+    await tester.tap(find.text('Por categoria'));
+    await tester.pumpAndSettle();
+    expect(find.text('Ranking de Categorias'), findsOneWidget);
+
+    await tester.tap(find.byTooltip('Voltar'));
+    await tester.pumpAndSettle();
+    expect(find.text('Histórico de Consumo'), findsNothing);
   });
 
   testWidgets('Estoque filtra por status e por busca', (tester) async {

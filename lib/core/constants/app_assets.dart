@@ -73,6 +73,10 @@ abstract final class AppIcons {
   static const checkCircle = '$_p/check_circle.svg';
   static const trash = '$_p/trash.svg';
   static const recipe = '$_p/recipe.svg';
+
+  // Histórico de consumo
+  static const backArrow = '$_p/back_arrow.svg';
+  static const filterFunnel = '$_p/filter_funnel.svg';
 }
 
 abstract final class AppImages {
