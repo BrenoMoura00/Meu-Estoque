@@ -15,7 +15,11 @@ abstract final class AppColors {
   static const surface = Colors.white;
   static const surfaceLow = Color(0xFFF2F3FF);
   static const surfaceContainer = Color(0xFFEAEDFF);
+  static const surfaceHigh = Color(0xFFE2E7FF);
   static const surfaceHighOverlay = Color(0x66E2E7FF); // rgba(226,231,255,0.4)
+  static const surfaceInverse = Color(0xF2283044); // rgba(40,48,68,0.95)
+  static const onSurfaceInverseVariant = Color(0xFFBCCAC0);
+  static const outline = Color(0xFF6D7A72);
   static const track = Color(0xFFDAE2FD);
 
   // Texto
@@ -26,6 +30,8 @@ abstract final class AppColors {
   static const error = Color(0xFFB61722);
   static const onErrorContainer = Color(0xFF930013);
   static const errorContainer = Color(0x66FFDAD7); // rgba(255,218,215,0.4)
+  static const errorContainerSolid = Color(0xFFFFDAD7);
+  static const errorBright = Color(0xFFDA3437); // status "Vence hoje"
 
   // Alerta / atenção
   static const warning = Color(0xFFFEA619);
@@ -33,6 +39,7 @@ abstract final class AppColors {
   static const warningContainerOverlay = Color(0x66FFDDB8);
   static const onWarningContainer = Color(0xFF2A1700);
   static const onWarning = Color(0xFF684000);
+  static const warningText = Color(0xFF855300);
 
   // Sombras
   static const shadow = Color(0xFF131B2E);

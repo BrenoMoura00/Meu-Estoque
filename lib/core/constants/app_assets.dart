@@ -28,6 +28,18 @@ abstract final class AppIcons {
   static const freezer = '$_p/freezer.svg';
   static const tagGeladeira = '$_p/tag_geladeira.svg';
   static const tagDespensa = '$_p/tag_despensa.svg';
+  static const locGeladeira = '$_p/loc_geladeira.svg';
+  static const locDespensa = '$_p/loc_despensa.svg';
+  static const locFreezer = '$_p/loc_freezer.svg';
+
+  // Estoque
+  static const searchInput = '$_p/search_input.svg';
+  static const filter = '$_p/filter.svg';
+  static const warning = '$_p/warning.svg';
+  static const consume = '$_p/consume.svg';
+  static const trashOutline = '$_p/trash_outline.svg';
+  static const checkCircleGreen = '$_p/check_circle_green.svg';
+  static const savings = '$_p/savings.svg';
 
   // Ações / status
   static const eco = '$_p/eco.svg';
@@ -51,4 +63,10 @@ abstract final class AppImages {
   static const paoArtesanal = '$_p/pao_artesanal.png';
   static const sucoLaranja = '$_p/suco_laranja.png';
   static const queijoParmesao = '$_p/queijo_parmesao.png';
+  static const leiteGarrafa = '$_p/leite_garrafa.png';
+  static const queijoMussarela = '$_p/queijo_mussarela.png';
+  static const iogurteMorango = '$_p/iogurte_morango.png';
+  static const frangoFiles = '$_p/frango_files.png';
+  static const arrozBranco = '$_p/arroz_branco.png';
+  static const feijaoCarioca = '$_p/feijao_carioca.png';
 }

@@ -11,7 +11,9 @@ import 'widgets/storage_summary_card.dart';
 
 /// Tela Início (Figma node 12:689).
 class HomePage extends StatelessWidget {
-  const HomePage({super.key});
+  const HomePage({super.key, this.onSeeStock});
+
+  final VoidCallback? onSeeStock;
 
   static const _gap = SizedBox(height: 24);
 
@@ -49,7 +51,7 @@ class HomePage extends StatelessWidget {
           ),
         ),
         _gap,
-        SectionHeader(title: 'Últimos itens cadastrados', trailing: 'Ver estoque', onTrailingTap: () {}),
+        SectionHeader(title: 'Últimos itens cadastrados', trailing: 'Ver estoque', onTrailingTap: onSeeStock ?? () {}),
         const SizedBox(height: 8),
         for (final item in HomeMockData.recentItems) ...[
           RecentItemCard(product: item),

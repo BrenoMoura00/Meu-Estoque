@@ -1,14 +1,33 @@
 import '../core/constants/app_assets.dart';
 
 enum StorageLocation {
-  geladeira('Geladeira', AppIcons.geladeira, AppIcons.tagGeladeira),
-  despensa('Despensa', AppIcons.despensa, AppIcons.tagDespensa),
-  freezer('Freezer', AppIcons.freezer, AppIcons.tagGeladeira);
+  geladeira('Geladeira', AppIcons.geladeira, AppIcons.tagGeladeira, AppIcons.locGeladeira),
+  despensa('Despensa', AppIcons.despensa, AppIcons.tagDespensa, AppIcons.locDespensa),
+  freezer('Freezer', AppIcons.freezer, AppIcons.locFreezer, AppIcons.locFreezer);
 
-  const StorageLocation(this.label, this.icon, this.tagIcon);
+  const StorageLocation(this.label, this.icon, this.tagIcon, this.inlineIcon);
   final String label;
+
+  /// Ícone grande (cards de resumo)
   final String icon;
+
+  /// Ícone da tag em pílula (Início)
   final String tagIcon;
+
+  /// Ícone inline ao lado do texto (Estoque)
+  final String inlineIcon;
+}
+
+/// Situação de validade de um item.
+enum ExpiryStatus {
+  /// Vence hoje ou já venceu
+  today,
+
+  /// Vence em até [Product.soonThresholdDays] dias
+  soon,
+
+  /// Dentro do prazo
+  ok,
 }
 
 class Product {
@@ -20,7 +39,15 @@ class Product {
     required this.spot,
     required this.daysToExpire,
     required this.freshness,
+    this.price = 0,
+    this.category,
   });
+
+  /// Rótulo da categoria (ex.: "Laticínios")
+  final String? category;
+
+  /// Até quantos dias o item é considerado "vencendo".
+  static const soonThresholdDays = 4;
 
   final String name;
 
@@ -36,8 +63,25 @@ class Product {
   /// 0..1 — quanto da vida útil ainda resta (barra de progresso)
   final double freshness;
 
-  bool get expiresToday => daysToExpire <= 0;
-  bool get isExpiringSoon => daysToExpire <= 3;
+  /// Valor estimado do item em R$
+  final double price;
+
+  ExpiryStatus get status => daysToExpire <= 0
+      ? ExpiryStatus.today
+      : daysToExpire <= soonThresholdDays
+          ? ExpiryStatus.soon
+          : ExpiryStatus.ok;
+
+  bool get expiresToday => status == ExpiryStatus.today;
+  bool get isExpiringSoon => status != ExpiryStatus.ok;
+
+  /// Prazo restante curto: "Hoje!", "1 dia", "3 dias", "6 meses"
+  String get shortRemaining {
+    if (daysToExpire <= 0) return 'Hoje!';
+    if (daysToExpire < 30) return daysToExpire == 1 ? '1 dia' : '$daysToExpire dias';
+    final months = (daysToExpire / 30).round();
+    return months == 1 ? '1 mês' : '$months meses';
+  }
 }
 
 class Category {
