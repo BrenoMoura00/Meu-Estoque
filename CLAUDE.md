@@ -49,6 +49,9 @@ assets/images/ PNGs do Figma
     (rota empilhada ao tocar em "Economia inteligente do mês" na Início, usa `AppTitleTopBar`; período ainda não filtra)
   - Receitas Rápidas — node `12:2002` → `features/recipes/presentation/recipes_page.dart`
     (aba "Receitas" do MainShell; filtros locais, favoritos em memória; "Ver Preparo"/"+ Lista" ainda são placeholders)
+  - Detalhes do Item — node `12:332` → `features/product_detail/presentation/product_detail_page.dart`
+    (rota empilhada ao tocar num card do Estoque, usa `AppDetailTopBar`; cores via `ExpiryPalette`; consumir/desperdiçar ainda não persiste)
+- `Product.freshness` = fração do ciclo de vida que já passou (0..1); `Product.units`/`unitPrice` para valor por unidade.
 - Carrossel de pílulas de filtro: `shared/widgets/choice_pill_bar.dart` (`ChoicePillBar`, `dense` para a versão compacta).
 - Telas internas: `AppDetailTopBar` (logo + título à esquerda) ou `AppTitleTopBar` (título centralizado + ação).
 - Formulários: usar `shared/widgets/form_widgets.dart` (`FormFieldLabel`, `LabeledField`, `InputBox`, `bareInputDecoration`).

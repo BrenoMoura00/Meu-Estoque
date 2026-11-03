@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
 import '../../../models/product.dart';
+import '../../product_detail/presentation/product_detail_page.dart';
 import '../data/stock_mock_data.dart';
 import 'widgets/location_segmented_control.dart';
 import 'widgets/status_filter_chips.dart';
@@ -133,7 +134,12 @@ class _StockPageState extends State<StockPage> {
                 sliver: SliverList.separated(
                   itemCount: visible.length,
                   separatorBuilder: (_, _) => const SizedBox(height: 8),
-                  itemBuilder: (_, i) => StockItemCard(product: visible[i]),
+                  itemBuilder: (_, i) => StockItemCard(
+                    product: visible[i],
+                    onTap: () => Navigator.of(context).push(
+                      MaterialPageRoute<void>(builder: (_) => ProductDetailPage(product: visible[i])),
+                    ),
+                  ),
                 ),
               ),
             // Espaço para a barra de resumo flutuante + bottom nav.
