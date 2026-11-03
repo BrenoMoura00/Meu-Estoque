@@ -81,6 +81,30 @@ void main() {
     expect(find.byTooltip('Remover dos favoritos'), findsOneWidget);
   });
 
+  testWidgets('Detalhes do Item: abre pelo card do estoque e marca como consumido', (tester) async {
+    tester.view.physicalSize = const Size(390 * 3, 2400 * 3);
+    tester.view.devicePixelRatio = 3;
+    addTearDown(tester.view.reset);
+
+    await tester.pumpWidget(const MeuEstoqueApp());
+    await tester.tap(find.text('Estoque').last);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Garrafa de Leite Integral'));
+    await tester.pumpAndSettle();
+    expect(find.text('Detalhes do Item'), findsOneWidget);
+    expect(find.text('Piracanjuba'), findsOneWidget);
+    expect(find.text('2 unidades'), findsOneWidget);
+
+    await tester.tap(find.byTooltip('Aumentar quantidade'));
+    await tester.pump();
+    expect(find.text('3 unidades'), findsOneWidget);
+
+    await tester.tap(find.text('Marcar como Consumido'));
+    await tester.pumpAndSettle();
+    expect(find.text('Detalhes do Item'), findsNothing);
+    expect(find.text('"Garrafa de Leite Integral" marcado como consumido'), findsOneWidget);
+  });
+
   testWidgets('Estoque filtra por status e por busca', (tester) async {
     tester.view.physicalSize = const Size(390 * 3, 2400 * 3);
     tester.view.devicePixelRatio = 3;

@@ -8,6 +8,7 @@ abstract final class AppColors {
   static const primaryLight = Color(0xFF00855D);
   static const mint = Color(0xFF85F8C4);
   static const mintOverlay = Color(0x4D68DBA9); // rgba(104,219,169,0.3)
+  static const onMintVariant = Color(0xFF005137);
   static const onMint = Color(0xFF002114);
 
   // Superfícies

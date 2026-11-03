@@ -14,6 +14,11 @@ abstract final class StockMockData {
       freshness: 0.95,
       price: 12.90,
       category: 'Laticínios',
+      brand: 'Piracanjuba',
+      variant: 'Integral',
+      units: 2,
+      notes: 'Aberta 1 unidade ontem à tarde. Manter lacrada na porta da geladeira.',
+      photoPath: AppImages.leiteGarrafaDetalhe,
     ),
     Product(
       name: 'Queijo Mussarela Fatiado',

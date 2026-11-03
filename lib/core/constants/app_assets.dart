@@ -80,6 +80,22 @@ abstract final class AppIcons {
 
   // Receitas
   static const heartOutline = '$_p/heart_outline.svg';
+
+  // Detalhes do item
+  static const edit = '$_p/edit.svg';
+  static const share = '$_p/share.svg';
+  static const dropBadge = '$_p/drop_badge.svg';
+  static const calendar = '$_p/calendar.svg';
+  static const priceTag = '$_p/price_tag.svg';
+  static const inventory = '$_p/inventory.svg';
+  static const category = '$_p/category.svg';
+  static const location = '$_p/location.svg';
+  static const notes = '$_p/notes.svg';
+  static const noteCheck = '$_p/note_check.svg';
+  static const clock = '$_p/clock.svg';
+  static const bellSent = '$_p/bell_sent.svg';
+  static const checkLarge = '$_p/check_large.svg';
+  static const trashLarge = '$_p/trash_large.svg';
 }
 
 abstract final class AppImages {
@@ -106,4 +122,5 @@ abstract final class AppImages {
   static const receitaMolhoTomate = '$_p/receita_molho_tomate.jpg';
   static const receitaTortaFrango = '$_p/receita_torta_frango.jpg';
   static const receitaSmoothie = '$_p/receita_smoothie.jpg';
+  static const leiteGarrafaDetalhe = '$_p/leite_garrafa_detalhe.jpg';
 }

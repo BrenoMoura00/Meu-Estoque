@@ -9,9 +9,12 @@ import '../../../../shared/widgets/progress_track.dart';
 
 /// Card de item do estoque com validade, barra de vida útil e ações.
 class StockItemCard extends StatelessWidget {
-  const StockItemCard({super.key, required this.product, this.onConsume, this.onDiscard});
+  const StockItemCard({super.key, required this.product, this.onTap, this.onConsume, this.onDiscard});
 
   final Product product;
+
+  /// Abre os detalhes do item.
+  final VoidCallback? onTap;
   final VoidCallback? onConsume;
   final VoidCallback? onDiscard;
 
@@ -40,6 +43,10 @@ class StockItemCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final p = _palette;
 
+    return GestureDetector(onTap: onTap, behavior: HitTestBehavior.opaque, child: _card(p));
+  }
+
+  Widget _card(({Color accent, Color imageBg, Color badgeBg, Color badgeFg}) p) {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(

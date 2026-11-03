@@ -41,7 +41,27 @@ class Product {
     required this.freshness,
     this.price = 0,
     this.category,
+    this.brand,
+    this.variant,
+    this.units = 1,
+    this.notes,
+    this.photoPath,
   });
+
+  /// Marca (ex.: "Piracanjuba")
+  final String? brand;
+
+  /// Variante (ex.: "Integral", "Desnatado")
+  final String? variant;
+
+  /// Quantas unidades/embalagens há em estoque.
+  final int units;
+
+  /// Observações de consumo (privadas).
+  final String? notes;
+
+  /// Foto grande para a tela de detalhes; usa [imagePath] se nula.
+  final String? photoPath;
 
   /// Rótulo da categoria (ex.: "Laticínios")
   final String? category;
@@ -60,11 +80,14 @@ class Product {
   final String spot;
   final int daysToExpire;
 
-  /// 0..1 — quanto da vida útil ainda resta (barra de progresso)
+  /// 0..1 — quanto do ciclo de vida útil já passou (barra de progresso)
   final double freshness;
 
   /// Valor estimado do item em R$
   final double price;
+
+  /// Valor estimado por unidade.
+  double get unitPrice => units <= 0 ? price : price / units;
 
   ExpiryStatus get status => daysToExpire <= 0
       ? ExpiryStatus.today
