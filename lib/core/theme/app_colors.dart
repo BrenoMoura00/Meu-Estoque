@@ -90,4 +90,12 @@ abstract final class AppColors {
   static const amber900 = Color(0xFF78350F);
   static const emerald300 = Color(0xFF6EE7B7);
   static const teal800 = Color(0xFF115E59);
+  static const red50 = Color(0xFFFEF2F2);
+  static const red100 = Color(0xFFFEE2E2);
+  static const red400 = Color(0xFFF87171);
+  static const red500 = Color(0xFFEF4444);
+  static const red600 = Color(0xFFDC2626);
+  static const amber600 = Color(0xFFD97706);
+  static const gray400 = Color(0xFF9CA3AF);
+  static const gray300 = Color(0xFFD1D5DB);
 }

@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:meu_estoque/features/consumption_history/presentation/widgets/consumption_rank_card.dart';
 import 'package:meu_estoque/features/recipes/presentation/widgets/recipe_card.dart';
 import 'package:meu_estoque/features/stock/presentation/widgets/stock_item_card.dart';
+import 'package:meu_estoque/features/waste_report/presentation/widgets/waste_item_card.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:meu_estoque/main.dart';
 
@@ -103,6 +104,30 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Detalhes do Item'), findsNothing);
     expect(find.text('"Garrafa de Leite Integral" marcado como consumido'), findsOneWidget);
+  });
+
+  testWidgets('Desperdício: abre pelo aviso do descarte e leva às receitas', (tester) async {
+    tester.view.physicalSize = const Size(390 * 3, 2600 * 3);
+    tester.view.devicePixelRatio = 3;
+    addTearDown(tester.view.reset);
+
+    await tester.pumpWidget(const MeuEstoqueApp());
+    await tester.tap(find.text('Estoque').last);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Garrafa de Leite Integral'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Registrar como Desperdiçado'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Ver relatório'));
+    await tester.pumpAndSettle();
+    expect(find.text('Desperdício de Alimentos'), findsOneWidget);
+    expect(find.text('R\$ 201,36'), findsOneWidget);
+    expect(find.byType(WasteItemCard), findsNWidgets(6));
+
+    await tester.tap(find.text('Ver Receitas Rápidas'));
+    await tester.pumpAndSettle();
+    expect(find.text('Desperdício de Alimentos'), findsNothing);
+    expect(find.text('Alerta de Desperdício Zero'), findsOneWidget);
   });
 
   testWidgets('Estoque filtra por status e por busca', (tester) async {

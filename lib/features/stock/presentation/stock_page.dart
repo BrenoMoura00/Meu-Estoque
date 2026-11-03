@@ -14,7 +14,10 @@ import 'widgets/stock_summary_bar.dart';
 /// Tela Estoque (Figma node 12:1057).
 /// Filtros (busca, local, status/categoria) funcionam localmente sobre os dados mock.
 class StockPage extends StatefulWidget {
-  const StockPage({super.key});
+  const StockPage({super.key, this.onSeeRecipes});
+
+  /// Abre a aba Receitas (atalho do relatório de desperdício).
+  final VoidCallback? onSeeRecipes;
 
   @override
   State<StockPage> createState() => _StockPageState();
@@ -137,7 +140,7 @@ class _StockPageState extends State<StockPage> {
                   itemBuilder: (_, i) => StockItemCard(
                     product: visible[i],
                     onTap: () => Navigator.of(context).push(
-                      MaterialPageRoute<void>(builder: (_) => ProductDetailPage(product: visible[i])),
+                      MaterialPageRoute<void>(builder: (_) => ProductDetailPage(product: visible[i], onSeeRecipes: widget.onSeeRecipes)),
                     ),
                   ),
                 ),

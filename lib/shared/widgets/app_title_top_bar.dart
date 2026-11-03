@@ -9,12 +9,22 @@ import 'app_svg.dart';
 
 /// Header de telas internas com título centralizado: voltar + título + ação opcional.
 class AppTitleTopBar extends StatelessWidget implements PreferredSizeWidget {
-  const AppTitleTopBar({super.key, required this.title, this.actionIcon, this.actionTooltip, this.onAction});
+  const AppTitleTopBar({
+    super.key,
+    required this.title,
+    this.actionIcon,
+    this.actionTooltip,
+    this.onAction,
+    this.outlined = false,
+  });
 
   final String title;
   final String? actionIcon;
   final String? actionTooltip;
   final VoidCallback? onAction;
+
+  /// Botões em círculo branco com borda e título menor (ex.: Desperdício).
+  final bool outlined;
 
   static const height = 56.0;
 
@@ -42,12 +52,22 @@ class AppTitleTopBar extends StatelessWidget implements PreferredSizeWidget {
                     _IconButton(
                       tooltip: 'Voltar',
                       onTap: () => Navigator.of(context).maybePop(),
-                      child: const AppSvg(AppIcons.backArrow, width: 24, height: 24),
+                      outlined: outlined,
+                      child: outlined
+                          ? const AppSvg(AppIcons.chevronLeft, width: 20, height: 20)
+                          : const AppSvg(AppIcons.backArrow, width: 24, height: 24),
                     ),
                     Expanded(
                       child: Text(
                         title,
-                        style: AppTextStyles.screenTitle.copyWith(color: AppColors.ink),
+                        style: outlined
+                            ? AppTextStyles.screenTitle.copyWith(
+                                fontSize: 16,
+                                height: 24 / 16,
+                                letterSpacing: -0.4,
+                                color: AppColors.ink,
+                              )
+                            : AppTextStyles.screenTitle.copyWith(color: AppColors.ink),
                         textAlign: TextAlign.center,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -57,6 +77,7 @@ class AppTitleTopBar extends StatelessWidget implements PreferredSizeWidget {
                       _IconButton(
                         tooltip: actionTooltip ?? '',
                         onTap: onAction,
+                        outlined: outlined,
                         child: AppSvg(actionIcon!, width: 20, height: 20),
                       )
                     else
@@ -73,19 +94,24 @@ class AppTitleTopBar extends StatelessWidget implements PreferredSizeWidget {
 }
 
 class _IconButton extends StatelessWidget {
-  const _IconButton({required this.child, required this.tooltip, this.onTap});
+  const _IconButton({required this.child, required this.tooltip, this.onTap, this.outlined = false});
 
   final Widget child;
   final String tooltip;
   final VoidCallback? onTap;
+  final bool outlined;
 
   @override
   Widget build(BuildContext context) => Tooltip(
     message: tooltip,
-    child: InkWell(
-      onTap: onTap ?? () {},
-      customBorder: const CircleBorder(),
-      child: SizedBox(width: 40, height: 40, child: Center(child: child)),
+    child: Material(
+      color: outlined ? AppColors.surface : Colors.transparent,
+      shape: CircleBorder(side: outlined ? const BorderSide(color: AppColors.slate100) : BorderSide.none),
+      child: InkWell(
+        onTap: onTap ?? () {},
+        customBorder: const CircleBorder(),
+        child: SizedBox(width: 40, height: 40, child: Center(child: child)),
+      ),
     ),
   );
 }

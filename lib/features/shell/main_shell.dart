@@ -32,7 +32,7 @@ class _MainShellState extends State<MainShell> {
             onSeeStock: () => setState(() => _tab = AppTab.estoque),
             onSeeRecipes: () => setState(() => _tab = AppTab.receitas),
           ),
-          const StockPage(),
+          StockPage(onSeeRecipes: () => setState(() => _tab = AppTab.receitas)),
           _PlaceholderPage(title: AppTab.compras.label),
           RecipesPage(onSeeUrgentItems: () => setState(() => _tab = AppTab.estoque)),
         ],
