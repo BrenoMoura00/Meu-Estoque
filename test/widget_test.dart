@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:meu_estoque/features/consumption_history/presentation/widgets/consumption_rank_card.dart';
+import 'package:meu_estoque/features/recipes/presentation/widgets/recipe_card.dart';
 import 'package:meu_estoque/features/stock/presentation/widgets/stock_item_card.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:meu_estoque/main.dart';
@@ -58,6 +59,26 @@ void main() {
     await tester.tap(find.byTooltip('Voltar'));
     await tester.pumpAndSettle();
     expect(find.text('Histórico de Consumo'), findsNothing);
+  });
+
+  testWidgets('Receitas: aba abre, filtra e favorita', (tester) async {
+    tester.view.physicalSize = const Size(390 * 3, 3000 * 3);
+    tester.view.devicePixelRatio = 3;
+    addTearDown(tester.view.reset);
+
+    await tester.pumpWidget(const MeuEstoqueApp());
+    await tester.tap(find.text('Receitas').last);
+    await tester.pumpAndSettle();
+    expect(find.text('Alerta de Desperdício Zero'), findsOneWidget);
+    expect(find.byType(RecipeCard), findsNWidgets(5));
+
+    await tester.tap(find.text('Vencendo Hoje (2)'));
+    await tester.pumpAndSettle();
+    expect(find.byType(RecipeCard), findsNWidgets(2));
+
+    await tester.tap(find.byTooltip('Favoritar').first);
+    await tester.pump();
+    expect(find.byTooltip('Remover dos favoritos'), findsOneWidget);
   });
 
   testWidgets('Estoque filtra por status e por busca', (tester) async {

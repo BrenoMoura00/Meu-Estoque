@@ -47,6 +47,9 @@ assets/images/ PNGs do Figma
     (rota empilhada pelo botão "+", usa `AppDetailTopBar`; ainda não persiste)
   - Histórico de Consumo — node `12:1821` → `features/consumption_history/presentation/consumption_history_page.dart`
     (rota empilhada ao tocar em "Economia inteligente do mês" na Início, usa `AppTitleTopBar`; período ainda não filtra)
+  - Receitas Rápidas — node `12:2002` → `features/recipes/presentation/recipes_page.dart`
+    (aba "Receitas" do MainShell; filtros locais, favoritos em memória; "Ver Preparo"/"+ Lista" ainda são placeholders)
+- Carrossel de pílulas de filtro: `shared/widgets/choice_pill_bar.dart` (`ChoicePillBar`, `dense` para a versão compacta).
 - Telas internas: `AppDetailTopBar` (logo + título à esquerda) ou `AppTitleTopBar` (título centralizado + ação).
 - Formulários: usar `shared/widgets/form_widgets.dart` (`FormFieldLabel`, `LabeledField`, `InputBox`, `bareInputDecoration`).
 - App em pt-BR (`flutter_localizations`); datas com `formatDate` (dd/MM/aaaa).

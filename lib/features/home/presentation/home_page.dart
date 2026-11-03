@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../shared/widgets/section_header.dart';
 import '../../consumption_history/presentation/consumption_history_page.dart';
+import '../../recipes/data/recipes_mock_data.dart';
 import '../data/home_mock_data.dart';
 import 'widgets/category_chips.dart';
 import 'widgets/expiring_today_banner.dart';
@@ -12,9 +13,10 @@ import 'widgets/storage_summary_card.dart';
 
 /// Tela Início (Figma node 12:689).
 class HomePage extends StatelessWidget {
-  const HomePage({super.key, this.onSeeStock});
+  const HomePage({super.key, this.onSeeStock, this.onSeeRecipes});
 
   final VoidCallback? onSeeStock;
+  final VoidCallback? onSeeRecipes;
 
   static const _gap = SizedBox(height: 24);
 
@@ -29,17 +31,13 @@ class HomePage extends StatelessWidget {
     return ListView(
       padding: EdgeInsets.fromLTRB(16, padding.top, 16, padding.bottom + 32),
       children: [
-        const ExpiringTodayBanner(
-          products: HomeMockData.expiringToday,
-          valueAtRisk: HomeMockData.valueAtRiskToday,
-        ),
+        const ExpiringTodayBanner(products: HomeMockData.expiringToday, valueAtRisk: HomeMockData.valueAtRiskToday),
         _gap,
         SavingsPill(
           amount: HomeMockData.monthlySavings,
           growthPercent: HomeMockData.savingsGrowth,
-          onTap: () => Navigator.of(context).push(
-            MaterialPageRoute<void>(builder: (_) => const ConsumptionHistoryPage()),
-          ),
+          onTap: () =>
+              Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const ConsumptionHistoryPage())),
         ),
         _gap,
         CategoryChips(categories: HomeMockData.categories),
@@ -60,12 +58,9 @@ class HomePage extends StatelessWidget {
         _gap,
         SectionHeader(title: 'Últimos itens cadastrados', trailing: 'Ver estoque', onTrailingTap: onSeeStock ?? () {}),
         const SizedBox(height: 8),
-        for (final item in HomeMockData.recentItems) ...[
-          RecentItemCard(product: item),
-          const SizedBox(height: 8),
-        ],
+        for (final item in HomeMockData.recentItems) ...[RecentItemCard(product: item), const SizedBox(height: 8)],
         const SizedBox(height: 16),
-        const RecipeSuggestionBanner(recipeCount: 3),
+        RecipeSuggestionBanner(recipeCount: RecipesMockData.recipes.length, onTap: onSeeRecipes),
       ],
     );
   }

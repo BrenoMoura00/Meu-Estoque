@@ -4,11 +4,12 @@ import '../../../core/constants/app_assets.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
 import '../../../shared/widgets/app_title_top_bar.dart';
+import '../../../shared/widgets/choice_pill_bar.dart';
 import '../data/consumption_mock_data.dart';
 import 'widgets/consumption_rank_card.dart';
 import 'widgets/consumption_summary_card.dart';
 import 'widgets/history_view_toggle.dart';
-import 'widgets/period_pills.dart';
+
 import 'widgets/saving_tip_card.dart';
 
 /// Tela Histórico de Consumo (Figma node 12:1821). Rota empilhada.
@@ -77,7 +78,13 @@ class _ConsumptionHistoryPageState extends State<ConsumptionHistoryPage> {
             children: [
               HistoryViewToggle(selected: _view, onChanged: (v) => setState(() => _view = v)),
               const SizedBox(height: 14),
-              PeriodPills(selected: _period, sidePadding: _side, onChanged: (p) => setState(() => _period = p)),
+              ChoicePillBar<ConsumptionPeriod>(
+                options: [for (final p in ConsumptionPeriod.values) ChoicePill(p, p.label)],
+                selected: _period,
+                sidePadding: _side,
+                dense: true,
+                onChanged: (p) => setState(() => _period = p),
+              ),
               const SizedBox(height: 16),
               const ConsumptionSummaryCard(
                 totalItems: ConsumptionMockData.totalItems,

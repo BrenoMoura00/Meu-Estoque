@@ -77,6 +77,9 @@ abstract final class AppIcons {
   // Histórico de consumo
   static const backArrow = '$_p/back_arrow.svg';
   static const filterFunnel = '$_p/filter_funnel.svg';
+
+  // Receitas
+  static const heartOutline = '$_p/heart_outline.svg';
 }
 
 abstract final class AppImages {
@@ -96,4 +99,11 @@ abstract final class AppImages {
   static const frangoFiles = '$_p/frango_files.png';
   static const arrozBranco = '$_p/arroz_branco.png';
   static const feijaoCarioca = '$_p/feijao_carioca.png';
+
+  // Receitas
+  static const receitaOmelete = '$_p/receita_omelete.jpg';
+  static const receitaPanqueca = '$_p/receita_panqueca.jpg';
+  static const receitaMolhoTomate = '$_p/receita_molho_tomate.jpg';
+  static const receitaTortaFrango = '$_p/receita_torta_frango.jpg';
+  static const receitaSmoothie = '$_p/receita_smoothie.jpg';
 }

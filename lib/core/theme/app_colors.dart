@@ -79,4 +79,14 @@ abstract final class AppColors {
   static const rose50 = Color(0xFFFFF1F2);
   static const rose100 = Color(0xFFFFE4E6);
   static const rose700 = Color(0xFFBE123C);
+  static const rose200 = Color(0xFFFECDD3);
+  static const rose500 = Color(0xFFF43F5E);
+  static const rose600 = Color(0xFFE11D48);
+  static const amber200 = Color(0xFFFDE68A);
+  static const amber400 = Color(0xFFFBBF24);
+  static const amber500 = Color(0xFFF59E0B);
+  static const amber700 = Color(0xFFB45309);
+  static const amber900 = Color(0xFF78350F);
+  static const emerald300 = Color(0xFF6EE7B7);
+  static const teal800 = Color(0xFF115E59);
 }
