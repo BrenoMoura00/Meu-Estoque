@@ -96,6 +96,14 @@ abstract final class AppIcons {
   static const bellSent = '$_p/bell_sent.svg';
   static const checkLarge = '$_p/check_large.svg';
   static const trashLarge = '$_p/trash_large.svg';
+
+  // Desperdício
+  static const chevronLeft = '$_p/chevron_left.svg';
+  static const shareUpload = '$_p/share_upload.svg';
+  static const piggyLoss = '$_p/piggy_loss.svg';
+  static const trendUp = '$_p/trend_up.svg';
+  static const bolt = '$_p/bolt.svg';
+  static const chevronRightWhite = '$_p/chevron_right_white.svg';
 }
 
 abstract final class AppImages {

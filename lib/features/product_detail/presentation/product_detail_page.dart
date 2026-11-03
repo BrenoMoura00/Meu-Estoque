@@ -8,6 +8,7 @@ import '../../../models/product.dart';
 import '../../../shared/widgets/app_detail_top_bar.dart';
 import '../../../shared/widgets/app_svg.dart';
 import '../../add_product/data/add_product_options.dart';
+import '../../waste_report/presentation/waste_report_page.dart';
 import 'widgets/consumption_notes_card.dart';
 import 'widgets/expiry_palette.dart';
 import 'widgets/expiry_status_card.dart';
@@ -17,9 +18,12 @@ import 'widgets/stock_units_card.dart';
 
 /// Tela Detalhes do Item (Figma node 12:332). Rota empilhada a partir do Estoque.
 class ProductDetailPage extends StatefulWidget {
-  const ProductDetailPage({super.key, required this.product});
+  const ProductDetailPage({super.key, required this.product, this.onSeeRecipes});
 
   final Product product;
+
+  /// Repassado ao relatório de desperdício ("Ver Receitas Rápidas").
+  final VoidCallback? onSeeRecipes;
 
   @override
   State<ProductDetailPage> createState() => _ProductDetailPageState();
@@ -31,11 +35,25 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
   Product get _product => widget.product;
 
   // TODO: persistir consumo/desperdício quando houver back-end.
-  void _finish(String message) {
+  void _finish(String message, {SnackBarAction Function(NavigatorState nav)? action}) {
     final messenger = ScaffoldMessenger.of(context);
-    Navigator.of(context).pop();
-    messenger.showSnackBar(SnackBar(content: Text(message)));
+    final nav = Navigator.of(context)..pop();
+    messenger.showSnackBar(SnackBar(content: Text(message), action: action?.call(nav)));
   }
+
+  SnackBarAction _seeWasteReport(NavigatorState nav) => SnackBarAction(
+    label: 'Ver relatório',
+    onPressed: () => nav.push(
+      MaterialPageRoute<void>(
+        builder: (_) => WasteReportPage(
+          onSeeRecipes: () {
+            nav.popUntil((route) => route.isFirst);
+            widget.onSeeRecipes?.call();
+          },
+        ),
+      ),
+    ),
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -141,7 +159,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                 icon: const AppSvg(AppIcons.trashLarge, width: 13.33, height: 15),
                 background: AppColors.errorContainerSolid,
                 foreground: AppColors.onErrorContainer,
-                onTap: () => _finish('"${p.name}" registrado como desperdício'),
+                onTap: () => _finish('"${p.name}" registrado como desperdício', action: _seeWasteReport),
               ),
             ],
           );

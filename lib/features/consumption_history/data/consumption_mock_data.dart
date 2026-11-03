@@ -1,25 +1,4 @@
-import 'package:flutter/material.dart';
-
-import '../../../core/theme/app_colors.dart';
-
-/// Tom de cor de uma categoria no histórico (fundo, borda e texto da tag).
-enum ConsumptionTone {
-  blue(AppColors.blue50, AppColors.blue100, AppColors.blue700),
-  amber(AppColors.amber50, AppColors.amber100, AppColors.amber800),
-  orange(AppColors.orange50, AppColors.orange100, AppColors.orange700),
-  yellow(AppColors.yellow50, AppColors.yellow100, AppColors.yellow800),
-  slate(AppColors.slate50, AppColors.slate200, AppColors.slate700),
-  rose(AppColors.rose50, AppColors.rose100, AppColors.rose700);
-
-  const ConsumptionTone(this.background, this.border, this.foreground);
-
-  final Color background;
-  final Color border;
-  final Color foreground;
-
-  /// Fundo da tag de categoria (o tom "slate" usa um cinza um pouco mais escuro).
-  Color get tagBackground => this == slate ? AppColors.slate100 : background;
-}
+import '../../../core/theme/category_tone.dart';
 
 /// Um item (ou categoria) no ranking de consumo.
 class ConsumptionEntry {
@@ -36,7 +15,7 @@ class ConsumptionEntry {
   final String name;
   final String emoji;
   final String category;
-  final ConsumptionTone tone;
+  final CategoryTone tone;
 
   /// Quantas vezes foi consumido no período.
   final int times;
@@ -68,7 +47,7 @@ abstract final class ConsumptionMockData {
       name: 'Leite Integral',
       emoji: '🥛',
       category: 'Laticínios',
-      tone: ConsumptionTone.blue,
+      tone: CategoryTone.blue,
       times: 14,
       amountLabel: '14x • 14 Litros',
       totalValue: 91,
@@ -77,7 +56,7 @@ abstract final class ConsumptionMockData {
       name: 'Café Torrado & Moído',
       emoji: '☕',
       category: 'Matinais',
-      tone: ConsumptionTone.amber,
+      tone: CategoryTone.amber,
       times: 8,
       amountLabel: '8x • 4 kg',
       totalValue: 88,
@@ -86,7 +65,7 @@ abstract final class ConsumptionMockData {
       name: 'Peito de Frango',
       emoji: '🍗',
       category: 'Açougue',
-      tone: ConsumptionTone.orange,
+      tone: CategoryTone.orange,
       times: 7,
       amountLabel: '7x • 7 kg',
       totalValue: 140,
@@ -95,7 +74,7 @@ abstract final class ConsumptionMockData {
       name: 'Ovos Caipiras',
       emoji: '🥚',
       category: 'Proteínas',
-      tone: ConsumptionTone.yellow,
+      tone: CategoryTone.yellow,
       times: 6,
       amountLabel: '6 dúzias (72 un)',
       totalValue: 66,
@@ -104,7 +83,7 @@ abstract final class ConsumptionMockData {
       name: 'Arroz Branco 5kg',
       emoji: '🍚',
       category: 'Grãos & Cereais',
-      tone: ConsumptionTone.slate,
+      tone: CategoryTone.slate,
       times: 4,
       amountLabel: '4x • 20 kg',
       totalValue: 110,
@@ -113,7 +92,7 @@ abstract final class ConsumptionMockData {
       name: 'Maçã Fuji',
       emoji: '🍎',
       category: 'Hortifrúti',
-      tone: ConsumptionTone.rose,
+      tone: CategoryTone.rose,
       times: 4,
       amountLabel: '4x • 4 kg',
       totalValue: 36,
