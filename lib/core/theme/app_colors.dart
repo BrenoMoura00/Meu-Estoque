@@ -20,6 +20,7 @@ abstract final class AppColors {
   static const surfaceInverse = Color(0xF2283044); // rgba(40,48,68,0.95)
   static const onSurfaceInverseVariant = Color(0xFFBCCAC0);
   static const outline = Color(0xFF6D7A72);
+  static const placeholder = Color(0xFF9CA3AF);
   static const track = Color(0xFFDAE2FD);
 
   // Texto
@@ -43,4 +44,39 @@ abstract final class AppColors {
 
   // Sombras
   static const shadow = Color(0xFF131B2E);
+
+  // Histórico de consumo (tons neutros "slate" e verdes "emerald" do Figma)
+  static const ink = Color(0xFF0F172A);
+  static const slate700 = Color(0xFF334155);
+  static const slate600 = Color(0xFF475569);
+  static const slate500 = Color(0xFF64748B);
+  static const slate200 = Color(0xFFE2E8F0);
+  static const slate100 = Color(0xFFF1F5F9);
+  static const slate50 = Color(0xFFF8FAFC);
+  static const emerald950 = Color(0xFF022C22);
+  static const emerald900 = Color(0xFF064E3B);
+  static const emerald700 = Color(0xFF047857);
+  static const emerald600 = Color(0xFF059669);
+  static const emerald500 = Color(0xFF10B981);
+  static const emerald400 = Color(0xFF34D399);
+  static const emerald200 = Color(0xFFA7F3D0);
+  static const emerald100 = Color(0xFFD1FAE5);
+  static const emerald50 = Color(0xFFECFDF5);
+
+  // Tons de categoria (fundo / borda / texto)
+  static const blue50 = Color(0xFFEFF6FF);
+  static const blue100 = Color(0xFFDBEAFE);
+  static const blue700 = Color(0xFF1D4ED8);
+  static const amber50 = Color(0xFFFFFBEB);
+  static const amber100 = Color(0xFFFEF3C7);
+  static const amber800 = Color(0xFF92400E);
+  static const orange50 = Color(0xFFFFF7ED);
+  static const orange100 = Color(0xFFFFEDD5);
+  static const orange700 = Color(0xFFC2410C);
+  static const yellow50 = Color(0xFFFEFCE8);
+  static const yellow100 = Color(0xFFFEF9C3);
+  static const yellow800 = Color(0xFF854D0E);
+  static const rose50 = Color(0xFFFFF1F2);
+  static const rose100 = Color(0xFFFFE4E6);
+  static const rose700 = Color(0xFFBE123C);
 }

@@ -43,6 +43,13 @@ assets/images/ PNGs do Figma
 - Telas implementadas:
   - Início — node `12:689` → `features/home/presentation/home_page.dart`
   - Estoque — node `12:1057` → `features/stock/presentation/stock_page.dart` (filtros locais de busca/local/status)
+  - Adicionar Item — node `12:496` → `features/add_product/presentation/add_product_page.dart`
+    (rota empilhada pelo botão "+", usa `AppDetailTopBar`; ainda não persiste)
+  - Histórico de Consumo — node `12:1821` → `features/consumption_history/presentation/consumption_history_page.dart`
+    (rota empilhada ao tocar em "Economia inteligente do mês" na Início, usa `AppTitleTopBar`; período ainda não filtra)
+- Telas internas: `AppDetailTopBar` (logo + título à esquerda) ou `AppTitleTopBar` (título centralizado + ação).
+- Formulários: usar `shared/widgets/form_widgets.dart` (`FormFieldLabel`, `LabeledField`, `InputBox`, `bareInputDecoration`).
+- App em pt-BR (`flutter_localizations`); datas com `formatDate` (dd/MM/aaaa).
 
 ## Domínio
 - Validade: `Product.status` → `ExpiryStatus.today` (≤0 dias), `soon` (≤ `Product.soonThresholdDays` = 4), `ok`.

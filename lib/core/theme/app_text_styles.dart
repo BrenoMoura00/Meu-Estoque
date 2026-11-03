@@ -27,6 +27,15 @@ abstract final class AppTextStyles {
   /// 20 semibold — números dos cards de resumo
   static final number = _base(size: 20, weight: FontWeight.w600, lineHeight: 25, letterSpacing: -0.2);
 
+  /// 24 extrabold — números grandes de cards
+  static final headline = _base(size: 24, weight: FontWeight.w800, lineHeight: 32, letterSpacing: -0.6);
+
+  /// 18 bold — título centralizado de telas internas
+  static final screenTitle = _base(size: 18, weight: FontWeight.w700, lineHeight: 28, letterSpacing: -0.45);
+
+  /// 16 extrabold — posição em rankings
+  static final rank = _base(size: 16, weight: FontWeight.w800, lineHeight: 24);
+
   /// 17 semibold — títulos de seção e nome de produto
   static final title = _base(size: 17, weight: FontWeight.w600, lineHeight: 24);
 

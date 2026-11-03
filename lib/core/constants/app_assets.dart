@@ -41,6 +41,29 @@ abstract final class AppIcons {
   static const checkCircleGreen = '$_p/check_circle_green.svg';
   static const savings = '$_p/savings.svg';
 
+  // Adicionar item
+  static const back = '$_p/back.svg';
+  static const moreVert = '$_p/more_vert.svg';
+  static const camera = '$_p/camera.svg';
+  static const cameraLarge = '$_p/camera_large.svg';
+  static const gallery = '$_p/gallery.svg';
+  static const clear = '$_p/clear.svg';
+  static const bellAlert = '$_p/bell_alert.svg';
+  static const minus = '$_p/minus.svg';
+  static const plusSmall = '$_p/plus_small.svg';
+  static const chevronDown = '$_p/chevron_down.svg';
+  static const saveCheck = '$_p/save_check.svg';
+  static const storeGeladeira = '$_p/store_geladeira.svg';
+  static const storeDespensa = '$_p/store_despensa.svg';
+  static const storeFreezer = '$_p/store_freezer.svg';
+  static const addCatHortifruti = '$_p/add_cat_hortifruti.svg';
+  static const addCatLaticinios = '$_p/add_cat_laticinios.svg';
+  static const addCatCarnes = '$_p/add_cat_carnes.svg';
+  static const addCatGraos = '$_p/add_cat_graos.svg';
+  static const addCatBebidas = '$_p/add_cat_bebidas.svg';
+  static const addCatLimpeza = '$_p/add_cat_limpeza.svg';
+  static const addCatOutros = '$_p/add_cat_outros.svg';
+
   // Ações / status
   static const eco = '$_p/eco.svg';
   static const arrowRightSmall = '$_p/arrow_right_small.svg';
@@ -50,6 +73,10 @@ abstract final class AppIcons {
   static const checkCircle = '$_p/check_circle.svg';
   static const trash = '$_p/trash.svg';
   static const recipe = '$_p/recipe.svg';
+
+  // Histórico de consumo
+  static const backArrow = '$_p/back_arrow.svg';
+  static const filterFunnel = '$_p/filter_funnel.svg';
 }
 
 abstract final class AppImages {

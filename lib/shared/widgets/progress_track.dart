@@ -4,12 +4,19 @@ import '../../core/theme/app_colors.dart';
 
 /// Barra de progresso arredondada (ocupação, vida útil).
 class ProgressTrack extends StatelessWidget {
-  const ProgressTrack({super.key, required this.value, required this.color, this.height = 6});
+  const ProgressTrack({
+    super.key,
+    required this.value,
+    required this.color,
+    this.height = 6,
+    this.trackColor = AppColors.track,
+  });
 
   /// 0..1
   final double value;
   final Color color;
   final double height;
+  final Color trackColor;
 
   @override
   Widget build(BuildContext context) => ClipRRect(
@@ -18,7 +25,7 @@ class ProgressTrack extends StatelessWidget {
           height: height,
           child: Stack(
             children: [
-              const Positioned.fill(child: ColoredBox(color: AppColors.track)),
+              Positioned.fill(child: ColoredBox(color: trackColor)),
               FractionallySizedBox(
                 widthFactor: value.clamp(0, 1),
                 heightFactor: 1,
