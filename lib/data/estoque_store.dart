@@ -4,7 +4,9 @@ import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../features/home/data/home_mock_data.dart';
+import '../features/consumption_history/data/consumption_mock_data.dart';
 import '../features/stock/data/stock_mock_data.dart';
+import '../features/waste_report/data/waste_mock_data.dart';
 import '../models/product.dart';
 
 /// Tipo de movimentação registrada ao tirar um item do estoque.
@@ -22,7 +24,23 @@ class Movimento {
     required this.unidades,
     required this.diasParaVencer,
     required this.data,
+    this.motivo,
+    this.local = '',
+    this.emoji,
+    this.pesoKg = 0,
   });
+
+  /// Motivo do descarte (só em [TipoMovimento.desperdicado]).
+  final WasteReason? motivo;
+
+  /// Onde o item estava (ex.: "Geladeira • Porta").
+  final String local;
+
+  /// Emoji específico do item (senão usa o da categoria).
+  final String? emoji;
+
+  /// Peso aproximado retirado (kg); 0 quando não dá para estimar.
+  final double pesoKg;
 
   final String id;
   final String itemId;
@@ -46,6 +64,10 @@ class Movimento {
     'unidades': unidades,
     'dias': diasParaVencer,
     'data': data.toIso8601String(),
+    'motivo': motivo?.name,
+    'local': local,
+    'emoji': emoji,
+    'pesoKg': pesoKg,
   };
 
   factory Movimento.fromJson(Map<String, Object?> j) => Movimento(
@@ -58,7 +80,22 @@ class Movimento {
     unidades: j['unidades']! as int,
     diasParaVencer: j['dias']! as int,
     data: DateTime.parse(j['data']! as String),
+    motivo: j['motivo'] == null ? null : WasteReason.values.byName(j['motivo']! as String),
+    local: j['local'] as String? ?? '',
+    emoji: j['emoji'] as String?,
+    pesoKg: (j['pesoKg'] as num? ?? 0).toDouble(),
   );
+}
+
+/// Peso aproximado (kg) a partir de textos como "500g", "1 kg", "2 Litros" (1 L ≈ 1 kg).
+double pesoDeTexto(String quantidade) {
+  final m = RegExp(r'(\d+(?:[.,]\d+)?)\s*(kg|g|ml|l\b|litros?)', caseSensitive: false).firstMatch(quantidade);
+  if (m == null) return 0;
+  final v = double.parse(m.group(1)!.replaceAll(',', '.'));
+  return switch (m.group(2)!.toLowerCase()) {
+    'g' || 'ml' => v / 1000,
+    _ => v,
+  };
 }
 
 /// Item guardado no estoque. Datas sem hora; dias/ciclo são calculados a partir de hoje.
@@ -171,8 +208,8 @@ String _data(DateTime d) =>
 /// Estoque local da apresentação: memória + `shared_preferences` (JSON).
 /// Telas escutam com `ListenableBuilder(listenable: estoque, ...)`.
 class EstoqueStore extends ChangeNotifier {
-  static const _keyItens = 'estoque.itens.v1';
-  static const _keyMovs = 'estoque.movimentos.v1';
+  static const _keyItens = 'estoque.itens.v2';
+  static const _keyMovs = 'estoque.movimentos.v2';
 
   /// Relógio injetável (testes).
   DateTime Function() now = DateTime.now;
@@ -218,6 +255,7 @@ class EstoqueStore extends ChangeNotifier {
     final raw = _prefs!.getString(_keyItens);
     if (raw == null) {
       _seed();
+      _seedMovimentos();
       await _persist();
     } else {
       _itens.addAll([for (final j in jsonDecode(raw) as List) _ItemRecord.fromJson((j as Map).cast())]);
@@ -234,6 +272,7 @@ class EstoqueStore extends ChangeNotifier {
     _itens.clear();
     _movimentos.clear();
     _seed();
+    _seedMovimentos();
     await _persist();
     notifyListeners();
   }
@@ -283,7 +322,8 @@ class EstoqueStore extends ChangeNotifier {
   /// Retira o item inteiro do estoque. Retorna um token para [desfazer].
   String? consumir(String id) => _retirar(id, TipoMovimento.consumido);
 
-  String? descartar(String id) => _retirar(id, TipoMovimento.desperdicado);
+  String? descartar(String id, {WasteReason motivo = WasteReason.vencimento}) =>
+      _retirar(id, TipoMovimento.desperdicado, motivo: motivo);
 
   final Map<String, ({_ItemRecord item, int index})> _desfazer = {};
 
@@ -296,18 +336,21 @@ class EstoqueStore extends ChangeNotifier {
     _changed();
   }
 
-  String? _retirar(String id, TipoMovimento tipo) {
+  String? _retirar(String id, TipoMovimento tipo, {WasteReason? motivo}) {
     final index = _itens.indexWhere((i) => i.id == id);
     if (index < 0) return null;
     final item = _itens.removeAt(index);
-    final mov = _registrar(item, tipo, item.units, item.price);
+    final mov = _registrar(item, tipo, item.units, item.price, motivo: motivo);
     _desfazer[mov.id] = (item: item, index: index);
     _changed();
     return mov.id;
   }
 
-  Movimento _registrar(_ItemRecord i, TipoMovimento tipo, int unidades, double valor) {
+  Movimento _registrar(_ItemRecord i, TipoMovimento tipo, int unidades, double valor, {WasteReason? motivo}) {
     final mov = Movimento(
+      motivo: motivo,
+      local: i.spot.isEmpty ? i.location.label : '${i.location.label} • ${i.spot}',
+      pesoKg: pesoDeTexto(i.quantity) * (unidades / (i.units == 0 ? 1 : i.units)),
       id: _novoId(),
       itemId: i.id,
       nome: i.name,
@@ -341,6 +384,148 @@ class EstoqueStore extends ChangeNotifier {
     if (prefs == null) return;
     await prefs.setString(_keyItens, jsonEncode([for (final i in _itens) i.toJson()]));
     await prefs.setString(_keyMovs, jsonEncode([for (final m in _movimentos) m.toJson()]));
+  }
+
+  /// Histórico de exemplo: consumo deste mês e do anterior + descartes (somam os números do design).
+  void _seedMovimentos() {
+    final n = now();
+    final inicioMes = DateTime(n.year, n.month, 1);
+    final decorrido = n.difference(inicioMes);
+    DateTime noMes(double f) => inicioMes.add(decorrido * f);
+    DateTime mesPassado(int dia) => DateTime(n.year, n.month - 1, dia, 12);
+    var k = 0;
+
+    Movimento mov(
+      String nome,
+      String? categoria,
+      TipoMovimento tipo,
+      double valor,
+      DateTime data, {
+      String? emoji,
+      int dias = 8,
+      WasteReason? motivo,
+      String local = '',
+      double peso = 0,
+    }) => Movimento(
+      id: 'seedm${k++}',
+      itemId: 'seedm$k',
+      nome: nome,
+      categoria: categoria,
+      tipo: tipo,
+      valor: valor,
+      unidades: 1,
+      diasParaVencer: dias,
+      data: data,
+      emoji: emoji,
+      motivo: motivo,
+      local: local,
+      pesoKg: peso,
+    );
+
+    const categorias = {'Matinais': 'Outros', 'Açougue': 'Carnes', 'Proteínas': 'Carnes', 'Grãos & Cereais': 'Grãos'};
+    for (final e in ConsumptionMockData.ranking) {
+      final cat = categorias[e.category] ?? e.category;
+      final valor = e.totalValue / e.times;
+      for (var t = 0; t < e.times; t++) {
+        _movimentos.add(
+          mov(
+            e.name,
+            cat,
+            TipoMovimento.consumido,
+            valor,
+            noMes((t + 1) / (e.times + 1)),
+            emoji: e.emoji,
+            dias: t % 3 == 0 ? 1 : 8,
+          ),
+        );
+      }
+      for (var t = 0; t < (e.times / 2).ceil(); t++) {
+        _movimentos.add(
+          mov(e.name, cat, TipoMovimento.consumido, valor, mesPassado(5 + t), emoji: e.emoji, dias: t.isEven ? 2 : 9),
+        );
+      }
+    }
+
+    // Descartes deste mês: dois mais antigos + os 6 "recentes" do design.
+    const pesos = [0.2, 0.4, 0.68, 0.5, 0.5, 0.2];
+    const categoriasDescarte = ['Laticínios', 'Carnes', 'Laticínios', 'Hortifrúti', 'Outros', 'Laticínios'];
+    const diasDescarte = [-2, -4, -7, 2, 1, -3];
+    _movimentos.add(
+      mov(
+        'Arroz cozido',
+        'Grãos',
+        TipoMovimento.desperdicado,
+        50.30,
+        noMes(0.1),
+        emoji: '🍚',
+        motivo: WasteReason.sobras,
+        local: 'Geladeira',
+        peso: 0.5,
+        dias: 0,
+      ),
+    );
+    _movimentos.add(
+      mov(
+        'Linguiça Toscana',
+        'Carnes',
+        TipoMovimento.desperdicado,
+        10.50,
+        noMes(0.2),
+        emoji: '🌭',
+        motivo: WasteReason.vencimento,
+        local: 'Freezer',
+        peso: 0.22,
+        dias: -1,
+      ),
+    );
+    final recentes = WasteMockData.recent;
+    for (var i = recentes.length - 1; i >= 0; i--) {
+      final w = recentes[i];
+      _movimentos.add(
+        mov(
+          w.name,
+          categoriasDescarte[i],
+          TipoMovimento.desperdicado,
+          w.value,
+          noMes(0.95 - i * 0.1),
+          emoji: w.emoji,
+          motivo: w.reason,
+          local: w.place,
+          peso: pesos[i],
+          dias: diasDescarte[i],
+        ),
+      );
+    }
+
+    // Descartes do mês passado (prejuízo menor → variação de +R$ 42).
+    _movimentos.add(
+      mov(
+        'Frutas variadas',
+        'Hortifrúti',
+        TipoMovimento.desperdicado,
+        59.36,
+        mesPassado(12),
+        emoji: '🍓',
+        motivo: WasteReason.deteriorado,
+        local: 'Fruteira',
+        peso: 1.2,
+        dias: 1,
+      ),
+    );
+    _movimentos.add(
+      mov(
+        'Presunto Fatiado',
+        'Carnes',
+        TipoMovimento.desperdicado,
+        100.00,
+        mesPassado(20),
+        emoji: '🥓',
+        motivo: WasteReason.vencimento,
+        local: 'Geladeira',
+        peso: 0.5,
+        dias: -2,
+      ),
+    );
   }
 
   /// Dados de exemplo: itens do Estoque + itens da Início (os da Início ficam como mais recentes).

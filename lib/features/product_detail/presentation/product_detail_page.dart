@@ -53,12 +53,6 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
     super.dispose();
   }
 
-  void _finish(String message, {SnackBarAction Function(NavigatorState nav)? action}) {
-    final messenger = ScaffoldMessenger.of(context);
-    final nav = Navigator.of(context)..pop();
-    messenger.showSnackBar(SnackBar(content: Text(message), action: action?.call(nav)));
-  }
-
   SnackBarAction _seeWasteReport(NavigatorState nav) => SnackBarAction(
     label: 'Ver relatório',
     onPressed: () => nav.push(
@@ -181,9 +175,10 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                 icon: const AppSvg(AppIcons.trashLarge, width: 13.33, height: 15),
                 background: AppColors.errorContainerSolid,
                 foreground: AppColors.onErrorContainer,
-                onTap: () {
-                  if (p.id != null) estoque.descartar(p.id!);
-                  _finish('"${p.name}" registrado como desperdício', action: _seeWasteReport);
+                onTap: () async {
+                  final nav = Navigator.of(context);
+                  final ok = await descartarComDesfazer(context, p, acaoExtra: _seeWasteReport(nav));
+                  if (ok) nav.pop();
                 },
               ),
             ],

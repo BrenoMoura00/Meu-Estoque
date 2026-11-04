@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../data/estoque_store.dart';
+import '../../../data/relatorios.dart';
 import '../../../models/product.dart';
 import '../../../shared/widgets/section_header.dart';
 import '../../../shared/widgets/stock_actions.dart';
@@ -46,6 +47,7 @@ class HomePage extends StatelessWidget {
         ),
     ];
     final totalItems = produtos.length;
+    final economia = economiaDoMes(estoque.movimentos, estoque.now());
 
     return ListView(
       padding: EdgeInsets.fromLTRB(16, padding.top, 16, padding.bottom + 32),
@@ -53,8 +55,8 @@ class HomePage extends StatelessWidget {
         ExpiringTodayBanner(products: hoje, valueAtRisk: hoje.fold(0, (s, p) => s + p.price)),
         _gap,
         SavingsPill(
-          amount: HomeMockData.monthlySavings,
-          growthPercent: HomeMockData.savingsGrowth,
+          amount: economia.valor,
+          growthPercent: economia.crescimento ?? 0,
           onTap: () =>
               Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const ConsumptionHistoryPage())),
         ),
