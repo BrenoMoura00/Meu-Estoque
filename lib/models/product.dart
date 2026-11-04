@@ -44,6 +44,8 @@ class Product {
     this.brand,
     this.variant,
     this.units = 1,
+    this.amount,
+    this.measureUnit,
     this.notes,
     this.photoPath,
     this.id,
@@ -60,6 +62,10 @@ class Product {
 
   /// Quantas unidades/embalagens há em estoque.
   final int units;
+
+  /// Quantidade restante na unidade de medida escolhida.
+  final double? amount;
+  final String? measureUnit;
 
   /// Observações de consumo (privadas).
   final String? notes;

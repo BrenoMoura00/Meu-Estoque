@@ -28,6 +28,8 @@ class Movimento {
     this.local = '',
     this.emoji,
     this.pesoKg = 0,
+    this.quantidade,
+    this.unidadeMedida,
   });
 
   /// Motivo do descarte (só em [TipoMovimento.desperdicado]).
@@ -41,6 +43,8 @@ class Movimento {
 
   /// Peso aproximado retirado (kg); 0 quando não dá para estimar.
   final double pesoKg;
+  final double? quantidade;
+  final String? unidadeMedida;
 
   final String id;
   final String itemId;
@@ -68,6 +72,8 @@ class Movimento {
     'local': local,
     'emoji': emoji,
     'pesoKg': pesoKg,
+    'quantidade': quantidade,
+    'unidadeMedida': unidadeMedida,
   };
 
   factory Movimento.fromJson(Map<String, Object?> j) => Movimento(
@@ -84,6 +90,8 @@ class Movimento {
     local: j['local'] as String? ?? '',
     emoji: j['emoji'] as String?,
     pesoKg: (j['pesoKg'] as num? ?? 0).toDouble(),
+    quantidade: (j['quantidade'] as num?)?.toDouble(),
+    unidadeMedida: j['unidadeMedida'] as String?,
   );
 }
 
@@ -115,13 +123,19 @@ class _ItemRecord {
     this.brand,
     this.variant,
     this.units = 1,
+    double? amount,
+    String? measureUnit,
     this.notes,
     this.photoPath,
-  });
+  }) {
+    initializeMeasure(amount, measureUnit);
+  }
 
   final String id;
   final String name;
-  final String quantity;
+  String quantity;
+  late double amount;
+  late String measureUnit;
   final String imagePath;
   final StorageLocation location;
   final String spot;
@@ -135,6 +149,23 @@ class _ItemRecord {
   int units;
   final String? notes;
   final String? photoPath;
+
+  // Os registros antigos são interpretados sem alterar a chave de persistência.
+  void initializeMeasure(double? initialAmount, String? initialUnit) {
+    final match = RegExp(r'(\d+(?:[.,]\d+)?)\s*(kg|g|ml|litros?|l\b|unidades?|pacotes?)', caseSensitive: false).firstMatch(quantity);
+    amount = initialAmount ?? (match == null ? units.toDouble() : double.parse(match.group(1)!.replaceAll(',', '.')));
+    measureUnit = initialUnit ?? (match == null ? 'Unidade(s)' : switch (match.group(2)!.toLowerCase()) {
+      'l' || 'litro' || 'litros' => 'Litro(s)',
+      'unidade' || 'unidades' => 'Unidade(s)',
+      'pacote' || 'pacotes' => 'Pacote(s)',
+      final value => value,
+    });
+  }
+
+  void refreshQuantity() {
+    final value = amount == amount.roundToDouble() ? amount.toInt().toString() : amount.toStringAsFixed(3).replaceFirst(RegExp(r'0+$'), '').replaceFirst(RegExp(r'\.$'), '').replaceAll('.', ',');
+    quantity = '$value $measureUnit';
+  }
 
   Product toProduct(DateTime hoje) {
     final dias = _diasEntre(hoje, venceEm);
@@ -154,6 +185,8 @@ class _ItemRecord {
       brand: brand,
       variant: variant,
       units: units,
+      amount: amount,
+      measureUnit: measureUnit,
       notes: notes,
       photoPath: photoPath,
     );
@@ -174,6 +207,8 @@ class _ItemRecord {
     'brand': brand,
     'variant': variant,
     'units': units,
+    'amount': amount,
+    'measureUnit': measureUnit,
     'notes': notes,
     'photoPath': photoPath,
   };
@@ -193,6 +228,8 @@ class _ItemRecord {
     brand: j['brand'] as String?,
     variant: j['variant'] as String?,
     units: j['units'] as int? ?? 1,
+    amount: (j['amount'] as num?)?.toDouble(),
+    measureUnit: j['measureUnit'] as String?,
     notes: j['notes'] as String?,
     photoPath: j['photoPath'] as String?,
   );
@@ -301,6 +338,8 @@ class EstoqueStore extends ChangeNotifier {
     double price = 0,
     String? category,
     int units = 1,
+    double? amount,
+    String? measureUnit,
   }) {
     final agora = now();
     final record = _ItemRecord(
@@ -316,6 +355,8 @@ class EstoqueStore extends ChangeNotifier {
       price: price,
       category: category,
       units: units,
+      amount: amount,
+      measureUnit: measureUnit,
     );
     _itens.add(record);
     _changed();
@@ -333,38 +374,59 @@ class EstoqueStore extends ChangeNotifier {
     _changed();
   }
 
-  /// Retira o item inteiro do estoque. Retorna um token para [desfazer].
-  String? consumir(String id) => _retirar(id, TipoMovimento.consumido);
+  /// Consome/descarta uma quantidade, mantendo o saldo e o preço proporcionais.
+  String? consumir(String id, {double? quantidade}) => _retirar(id, TipoMovimento.consumido, quantidade: quantidade);
 
-  String? descartar(String id, {WasteReason motivo = WasteReason.vencimento}) =>
-      _retirar(id, TipoMovimento.desperdicado, motivo: motivo);
+  String? descartar(String id, {WasteReason motivo = WasteReason.vencimento, double? quantidade}) =>
+      _retirar(id, TipoMovimento.desperdicado, motivo: motivo, quantidade: quantidade);
 
   final Map<String, ({_ItemRecord item, int index})> _desfazer = {};
 
-  /// Desfaz um [consumir]/[descartar]: devolve o item e apaga a movimentação.
   void desfazer(String token) {
     final saved = _desfazer.remove(token);
     if (saved == null) return;
     _movimentos.removeWhere((m) => m.id == token);
+    final index = _itens.indexWhere((i) => i.id == saved.item.id);
+    if (index >= 0) _itens.removeAt(index);
     _itens.insert(saved.index.clamp(0, _itens.length), saved.item);
     _changed();
   }
 
-  String? _retirar(String id, TipoMovimento tipo, {WasteReason? motivo}) {
+  String? _retirar(String id, TipoMovimento tipo, {WasteReason? motivo, double? quantidade}) {
     final index = _itens.indexWhere((i) => i.id == id);
     if (index < 0) return null;
-    final item = _itens.removeAt(index);
-    final mov = _registrar(item, tipo, item.units, item.price, motivo: motivo);
-    _desfazer[mov.id] = (item: item, index: index);
+    final item = _itens[index];
+    final retirada = quantidade ?? item.amount;
+    if (!retirada.isFinite || retirada <= 0 || retirada > item.amount + 0.000001) return null;
+    final snapshot = _ItemRecord.fromJson(item.toJson());
+    final fraction = (retirada / item.amount).clamp(0.0, 1.0);
+    final value = item.price * fraction;
+    final weight = switch (item.measureUnit) {
+      'kg' || 'Litro(s)' => retirada,
+      'g' || 'ml' => retirada / 1000,
+      _ => 0.0,
+    };
+    final mov = _registrar(item, tipo, (item.units * fraction).round(), value, motivo: motivo, pesoKg: weight, quantidade: retirada, unidadeMedida: item.measureUnit);
+    item.amount = (item.amount - retirada).clamp(0.0, double.infinity).toDouble();
+    item.price = (item.price - value).clamp(0.0, double.infinity).toDouble();
+    if (item.amount < 0.000001) {
+      _itens.removeAt(index);
+    } else {
+      if (item.measureUnit == 'Unidade(s)' || item.measureUnit == 'Pacote(s)') item.units = item.amount.round();
+      item.refreshQuantity();
+    }
+    _desfazer[mov.id] = (item: snapshot, index: index);
     _changed();
     return mov.id;
   }
 
-  Movimento _registrar(_ItemRecord i, TipoMovimento tipo, int unidades, double valor, {WasteReason? motivo}) {
+  Movimento _registrar(_ItemRecord i, TipoMovimento tipo, int unidades, double valor, {WasteReason? motivo, double? pesoKg, double? quantidade, String? unidadeMedida}) {
     final mov = Movimento(
       motivo: motivo,
       local: i.spot.isEmpty ? i.location.label : '${i.location.label} • ${i.spot}',
-      pesoKg: pesoDeTexto(i.quantity) * (unidades / (i.units == 0 ? 1 : i.units)),
+      pesoKg: pesoKg ?? pesoDeTexto(i.quantity) * (unidades / (i.units == 0 ? 1 : i.units)),
+      quantidade: quantidade,
+      unidadeMedida: unidadeMedida,
       id: _novoId(),
       itemId: i.id,
       nome: i.name,

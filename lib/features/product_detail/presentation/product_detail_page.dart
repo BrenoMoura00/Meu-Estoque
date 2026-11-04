@@ -16,7 +16,6 @@ import 'widgets/expiry_palette.dart';
 import 'widgets/expiry_status_card.dart';
 import 'widgets/info_tiles.dart';
 import 'widgets/product_summary_card.dart';
-import 'widgets/stock_units_card.dart';
 
 /// Tela Detalhes do Item (Figma node 12:332). Rota empilhada a partir do Estoque.
 class ProductDetailPage extends StatefulWidget {
@@ -35,7 +34,6 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
   /// Versão atual do item no estoque (cai no recebido se já saiu do estoque).
   Product get _product => (widget.product.id == null ? null : estoque.porId(widget.product.id!)) ?? widget.product;
 
-  int get _units => _product.units;
 
   void _onStoreChanged() {
     if (mounted) setState(() {});
@@ -124,15 +122,15 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                       child: StatTile(
                         icon: (asset: AppIcons.priceTag, width: 14.98, height: 15),
                         label: 'Valor Estimado',
-                        value: formatBRL(p.unitPrice * _units),
-                        caption: '${formatBRL(p.unitPrice)} / unidade',
+                        value: formatBRL(p.price),
+                        caption: 'Valor do estoque restante',
                       ),
                     ),
                   ],
                 ),
               ),
               const SizedBox(height: 8),
-              StockUnitsCard(units: _units, onChanged: (v) { if (_product.id != null) estoque.ajustarUnidades(_product.id!, v); }),
+              Card(child: Padding(padding: const EdgeInsets.all(16), child: Text('Em estoque: ${p.quantity}', style: AppTextStyles.title))),
               const SizedBox(height: 8),
               Row(
                 children: [
@@ -163,10 +161,10 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                 background: AppColors.primary,
                 foreground: Colors.white,
                 elevated: true,
-                onTap: () {
+                onTap: () async {
                   final messenger = ScaffoldMessenger.of(context);
-                  Navigator.of(context).pop();
-                  consumirComDesfazer(context, p, messenger: messenger);
+                  final ok = await consumirComDesfazer(context, p, messenger: messenger);
+                  if (ok && context.mounted) Navigator.of(context).pop();
                 },
               ),
               const SizedBox(height: 8),

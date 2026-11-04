@@ -32,6 +32,7 @@ class AddProductPage extends StatefulWidget {
 class _AddProductPageState extends State<AddProductPage> {
   final _nameController = TextEditingController();
   final _priceController = TextEditingController();
+  final _amountController = TextEditingController(text: '1');
 
   String _category = AddProductOptions.categories.first.label;
   DateTime? _expiry;
@@ -68,6 +69,7 @@ class _AddProductPageState extends State<AddProductPage> {
   void dispose() {
     _nameController.dispose();
     _priceController.dispose();
+    _amountController.dispose();
     super.dispose();
   }
 
@@ -83,12 +85,19 @@ class _AddProductPageState extends State<AddProductPage> {
         ..showSnackBar(const SnackBar(content: Text('Informe a data de validade')));
       return;
     }
-    final isUnit = _unit == AddProductOptions.units.first;
+    final isUnit = _unit == 'Unidade(s)' || _unit == 'Pacote(s)';
+    final amount = isUnit ? _quantity.toDouble() : double.tryParse(_amountController.text.replaceAll(',', '.'));
+    if (amount == null || !amount.isFinite || amount <= 0) {
+      messenger.showSnackBar(const SnackBar(content: Text('Informe uma quantidade maior que zero')));
+      return;
+    }
     final price = double.tryParse(_priceController.text.replaceAll('.', '').replaceAll(',', '.')) ?? 0;
     estoque.adicionar(
       name: _nameController.text.trim(),
-      quantity: isUnit ? (_quantity == 1 ? '1 unidade' : '$_quantity unidades') : '$_quantity $_unit',
+      quantity: '${amount == amount.roundToDouble() ? amount.toInt() : amount} $_unit',
       units: isUnit ? _quantity : 1,
+      amount: amount,
+      measureUnit: _unit,
       location: _location,
       venceEm: _expiry!,
       price: price,
@@ -165,6 +174,19 @@ class _AddProductPageState extends State<AddProductPage> {
               units: AddProductOptions.units,
               onUnitChanged: (u) => setState(() => _unit = u),
             ),
+            if (_unit != 'Unidade(s)' && _unit != 'Pacote(s)') ...[
+              const SizedBox(height: 8),
+              LabeledField(
+                label: FormFieldLabel('Quantidade em $_unit (aceita decimais)'),
+                child: InputBox(
+                  child: TextField(
+                    controller: _amountController,
+                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                    decoration: bareInputDecoration(hint: 'Ex.: 1,5'),
+                  ),
+                ),
+              ),
+            ],
             const SizedBox(height: 16),
             LabeledField(
               label: const FormFieldLabel('Local de Armazenamento'),
