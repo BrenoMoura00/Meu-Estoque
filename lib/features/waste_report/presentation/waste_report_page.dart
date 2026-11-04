@@ -28,6 +28,13 @@ class WasteReportPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    return ListenableBuilder(
+      listenable: estoque,
+      builder: (context, _) => _buildReport(context),
+    );
+  }
+
+  Widget _buildReport(BuildContext context) {
     final resumo = resumoDesperdicio(estoque.movimentos, estoque.now());
     final recent = resumo.recentes;
 
@@ -54,7 +61,7 @@ class WasteReportPage extends StatelessWidget {
                 weightKg: resumo.pesoKg,
               ),
               const SizedBox(height: 24),
-              WasteReasonsCard(byReason: resumo.porMotivo, periodLabel: formatMonthYear(DateTime.now())),
+              WasteReasonsCard(byReason: resumo.porMotivo, periodLabel: formatMonthYear(estoque.now())),
               const SizedBox(height: 28),
               Row(
                 children: [
@@ -89,6 +96,11 @@ class WasteReportPage extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 12),
+              if (recent.isEmpty)
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 28),
+                  child: Center(child: Text('Nenhum descarte registrado neste mês.')),
+                ),
               for (var i = 0; i < recent.length; i++) ...[
                 if (i > 0) const SizedBox(height: 10),
                 WasteItemCard(entry: recent[i]),

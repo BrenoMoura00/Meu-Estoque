@@ -6,6 +6,8 @@ import '../../../models/product.dart';
 import '../../../data/estoque_store.dart';
 import '../../../shared/widgets/stock_actions.dart';
 import '../../product_detail/presentation/product_detail_page.dart';
+import '../../consumption_history/presentation/consumption_history_page.dart';
+import '../../waste_report/presentation/waste_report_page.dart';
 import '../data/stock_mock_data.dart';
 import 'widgets/location_segmented_control.dart';
 import 'widgets/status_filter_chips.dart';
@@ -16,7 +18,9 @@ import 'widgets/stock_summary_bar.dart';
 /// Tela Estoque (Figma node 12:1057).
 /// Filtros (busca, local, status/categoria) funcionam localmente sobre os dados mock.
 class StockPage extends StatefulWidget {
-  const StockPage({super.key, this.onSeeRecipes});
+  const StockPage({super.key, this.onSeeRecipes, this.initialFilter = 'todos'});
+
+  final String initialFilter;
 
   /// Abre a aba Receitas (atalho do relatório de desperdício).
   final VoidCallback? onSeeRecipes;
@@ -38,6 +42,7 @@ class _StockPageState extends State<StockPage> {
   @override
   void initState() {
     super.initState();
+    _filterId = widget.initialFilter;
     estoque.addListener(_onStoreChanged);
   }
 
@@ -49,7 +54,7 @@ class _StockPageState extends State<StockPage> {
 
   String _query = '';
   StorageLocation? _location;
-  String _filterId = _all;
+  late String _filterId;
 
   /// Itens filtrados apenas por busca + local (base para as contagens dos chips).
   List<Product> get _byLocationAndQuery {
@@ -119,6 +124,38 @@ class _StockPageState extends State<StockPage> {
               padding: EdgeInsets.fromLTRB(16, padding.top, 16, 0),
               sliver: SliverList.list(
                 children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          onPressed: () => Navigator.of(context).push(
+                            MaterialPageRoute<void>(builder: (_) => const ConsumptionHistoryPage()),
+                          ),
+                          icon: const Icon(Icons.history, size: 19),
+                          label: const Text('Histórico'),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          onPressed: () {
+                            final nav = Navigator.of(context);
+                            nav.push(MaterialPageRoute<void>(
+                              builder: (_) => WasteReportPage(
+                                onSeeRecipes: () {
+                                  nav.popUntil((route) => route.isFirst);
+                                  widget.onSeeRecipes?.call();
+                                },
+                              ),
+                            ));
+                          },
+                          icon: const Icon(Icons.bar_chart_outlined, size: 19),
+                          label: const Text('Desperdício'),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
                   StockSearchBar(onChanged: (v) => setState(() => _query = v)),
                   const SizedBox(height: 12),
                   LocationSegmentedControl(

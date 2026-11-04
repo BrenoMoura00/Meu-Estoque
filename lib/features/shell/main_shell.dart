@@ -18,6 +18,14 @@ class MainShell extends StatefulWidget {
 
 class _MainShellState extends State<MainShell> {
   AppTab _tab = AppTab.inicio;
+  String _stockFilter = 'todos';
+  int _stockVersion = 0;
+
+  void _showExpiring() => setState(() {
+    _stockFilter = 'hoje';
+    _stockVersion++;
+    _tab = AppTab.estoque;
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -30,9 +38,14 @@ class _MainShellState extends State<MainShell> {
         children: [
           HomePage(
             onSeeStock: () => setState(() => _tab = AppTab.estoque),
+            onSeeExpiring: _showExpiring,
             onSeeRecipes: () => setState(() => _tab = AppTab.receitas),
           ),
-          StockPage(onSeeRecipes: () => setState(() => _tab = AppTab.receitas)),
+          StockPage(
+            key: ValueKey(_stockVersion),
+            initialFilter: _stockFilter,
+            onSeeRecipes: () => setState(() => _tab = AppTab.receitas),
+          ),
           _PlaceholderPage(title: AppTab.compras.label),
           RecipesPage(onSeeUrgentItems: () => setState(() => _tab = AppTab.estoque)),
         ],

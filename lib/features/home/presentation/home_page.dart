@@ -18,9 +18,10 @@ import 'widgets/storage_summary_card.dart';
 
 /// Tela Início (Figma node 12:689).
 class HomePage extends StatelessWidget {
-  const HomePage({super.key, this.onSeeStock, this.onSeeRecipes});
+  const HomePage({super.key, this.onSeeStock, this.onSeeExpiring, this.onSeeRecipes});
 
   final VoidCallback? onSeeStock;
+  final VoidCallback? onSeeExpiring;
   final VoidCallback? onSeeRecipes;
 
   static const _gap = SizedBox(height: 24);
@@ -53,7 +54,7 @@ class HomePage extends StatelessWidget {
     return ListView(
       padding: EdgeInsets.fromLTRB(16, padding.top, 16, padding.bottom + 32),
       children: [
-        ExpiringTodayBanner(products: hoje, valueAtRisk: hoje.fold(0, (s, p) => s + p.price)),
+        ExpiringTodayBanner(products: hoje, valueAtRisk: hoje.fold(0, (s, p) => s + p.price), onSeeAll: onSeeExpiring),
         _gap,
         SavingsPill(
           amount: economia.valor,
