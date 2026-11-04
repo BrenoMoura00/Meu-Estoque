@@ -102,7 +102,7 @@ class _StockPageState extends State<StockPage> {
         background: AppColors.primaryLight.withValues(alpha: 0.2),
         foreground: AppColors.primary,
       ),
-      for (final c in StockMockData.categoryFilters) StatusFilter(id: c, label: c),
+      for (final c in {...StockMockData.categoryFilters, 'Carnes', 'Bebidas', 'Outros'}) StatusFilter(id: c, label: c),
     ];
   }
 

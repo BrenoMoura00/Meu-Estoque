@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import '../../data/estoque_store.dart';
@@ -110,7 +112,10 @@ Future<bool> descartarComDesfazer(BuildContext context, Product p, {SnackBarActi
   return true;
 }
 
+Timer? _dismissTimer;
+
 void _avisar(ScaffoldMessengerState messenger, String message, String? token, {SnackBarAction? acao}) {
+  _dismissTimer?.cancel();
   messenger
     ..hideCurrentSnackBar()
     ..showSnackBar(SnackBar(
@@ -118,4 +123,9 @@ void _avisar(ScaffoldMessengerState messenger, String message, String? token, {S
       content: Text(message),
       action: acao ?? (token == null ? null : SnackBarAction(label: 'Desfazer', onPressed: () => estoque.desfazer(token))),
     ));
+  // Com ação de desfazer, algumas configurações de acessibilidade mantêm o
+  // SnackBar visível indefinidamente. Encerramos explicitamente após 4s.
+  _dismissTimer = Timer(const Duration(seconds: 4), () {
+    if (messenger.mounted) messenger.hideCurrentSnackBar();
+  });
 }

@@ -18,11 +18,12 @@ import 'widgets/storage_summary_card.dart';
 
 /// Tela Início (Figma node 12:689).
 class HomePage extends StatelessWidget {
-  const HomePage({super.key, this.onSeeStock, this.onSeeExpiring, this.onSeeRecipes});
+  const HomePage({super.key, this.onSeeStock, this.onSeeExpiring, this.onSeeRecipes, this.onSelectCategory});
 
   final VoidCallback? onSeeStock;
   final VoidCallback? onSeeExpiring;
   final VoidCallback? onSeeRecipes;
+  final ValueChanged<String>? onSelectCategory;
 
   static const _gap = SizedBox(height: 24);
 
@@ -63,7 +64,7 @@ class HomePage extends StatelessWidget {
               Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const ConsumptionHistoryPage())),
         ),
         _gap,
-        CategoryChips(categories: HomeMockData.categories),
+        CategoryChips(categories: HomeMockData.categories, onChanged: (category) => onSelectCategory?.call(category.label)),
         _gap,
         SectionHeader(title: 'Resumo do Estoque', trailing: '$totalItems itens no total'),
         const SizedBox(height: 8),

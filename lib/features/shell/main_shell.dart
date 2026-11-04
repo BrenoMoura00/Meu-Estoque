@@ -21,11 +21,13 @@ class _MainShellState extends State<MainShell> {
   String _stockFilter = 'todos';
   int _stockVersion = 0;
 
-  void _showExpiring() => setState(() {
-    _stockFilter = 'hoje';
+  void _showStockFilter(String filter) => setState(() {
+    _stockFilter = filter;
     _stockVersion++;
     _tab = AppTab.estoque;
   });
+
+  void _showExpiring() => _showStockFilter('hoje');
 
   @override
   Widget build(BuildContext context) {
@@ -39,6 +41,7 @@ class _MainShellState extends State<MainShell> {
           HomePage(
             onSeeStock: () => setState(() => _tab = AppTab.estoque),
             onSeeExpiring: _showExpiring,
+            onSelectCategory: (category) => _showStockFilter(category == 'Todos' ? 'todos' : category),
             onSeeRecipes: () => setState(() => _tab = AppTab.receitas),
           ),
           StockPage(

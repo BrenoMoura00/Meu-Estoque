@@ -81,7 +81,10 @@ class _AddProductPageState extends State<AddProductPage> {
     _nameController.addListener(() => setState(() {
           if (_nameController.text.trim().isNotEmpty) _showNameError = false;
         }));
+    _amountController.addListener(_refreshTotal);
   }
+
+  void _refreshTotal() { if (mounted) setState(() {}); }
 
   @override
   void dispose() {
@@ -104,7 +107,8 @@ class _AddProductPageState extends State<AddProductPage> {
       return;
     }
     final isUnit = _unit == 'Unidade(s)' || _unit == 'Pacote(s)';
-    final amount = isUnit ? _quantity.toDouble() : double.tryParse(_amountController.text.replaceAll(',', '.'));
+    final perPackage = double.tryParse(_amountController.text.replaceAll(',', '.'));
+    final amount = isUnit ? _quantity.toDouble() : (perPackage == null ? null : perPackage * _quantity);
     if (amount == null || !amount.isFinite || amount <= 0) {
       messenger.showSnackBar(const SnackBar(content: Text('Informe uma quantidade maior que zero')));
       return;
@@ -215,7 +219,7 @@ class _AddProductPageState extends State<AddProductPage> {
             if (_unit != 'Unidade(s)' && _unit != 'Pacote(s)') ...[
               const SizedBox(height: 8),
               LabeledField(
-                label: FormFieldLabel('Quantidade em $_unit (aceita decimais)'),
+                label: FormFieldLabel('Medida por embalagem em $_unit (aceita decimais)'),
                 child: InputBox(
                   child: TextField(
                     controller: _amountController,
@@ -224,6 +228,16 @@ class _AddProductPageState extends State<AddProductPage> {
                   ),
                 ),
               ),
+              const SizedBox(height: 6),
+              Builder(builder: (context) {
+                final medida = double.tryParse(_amountController.text.replaceAll(',', '.'));
+                if (medida == null || !medida.isFinite || medida <= 0) return const SizedBox.shrink();
+                final total = medida * _quantity;
+                final texto = total == total.roundToDouble()
+                    ? total.toInt().toString()
+                    : total.toStringAsFixed(3).replaceFirst(RegExp(r'0+$'), '').replaceFirst(RegExp(r'\.$'), '').replaceAll('.', ',');
+                return Text('Total no estoque: $texto $_unit', style: AppTextStyles.caption);
+              }),
             ],
             const SizedBox(height: 16),
             LabeledField(
