@@ -10,6 +10,7 @@ Idioma da UI e dos nomes de domínio: **português (pt-BR)**. Código (classes, 
    - Telas leem `estoque.produtos`/`porId`/`recentes` e escutam mudanças; ações em `shared/widgets/stock_actions.dart`.
    - Relatórios (Histórico, Desperdício, economia da Início) calculados em `lib/data/relatorios.dart` a partir de `estoque.movimentos`.
    - Descarte sempre pergunta o motivo (`shared/widgets/discard_reason_sheet.dart`).
+   - Receitas cruzam com o estoque em `lib/data/receitas.dart` (ingredientes com `termos` em `recipes_mock_data.dart`); favoritas em `estoque.favoritas`.
    - Testes: `SharedPreferences.setMockInitialValues({})` + `await estoque.load()` no `setUp`.
    - Não adicionar Riverpod/Drift/back-end sem pedido.
 
@@ -54,7 +55,7 @@ assets/images/ PNGs do Figma
   - Histórico de Consumo — node `12:1821` → `features/consumption_history/presentation/consumption_history_page.dart`
     (rota empilhada ao tocar em "Economia inteligente do mês" na Início, usa `AppTitleTopBar`; período ainda não filtra)
   - Receitas Rápidas — node `12:2002` → `features/recipes/presentation/recipes_page.dart`
-    (aba "Receitas" do MainShell; filtros locais, favoritos em memória; "Ver Preparo"/"+ Lista" ainda são placeholders)
+    (aba "Receitas" do MainShell; disponibilidade calculada com o estoque; "Ver Preparo" abre ingredientes + passos; "+ Lista" ainda é placeholder)
   - Detalhes do Item — node `12:332` → `features/product_detail/presentation/product_detail_page.dart`
     (rota empilhada ao tocar num card do Estoque, usa `AppDetailTopBar`; cores via `ExpiryPalette`; consumir/desperdiçar ainda não persiste)
   - Desperdício de Alimentos — node `12:1396` → `features/waste_report/presentation/waste_report_page.dart`

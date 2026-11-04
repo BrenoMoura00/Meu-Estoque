@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../data/estoque_store.dart';
+import '../../../data/receitas.dart';
 import '../../../data/relatorios.dart';
 import '../../../models/product.dart';
 import '../../../shared/widgets/section_header.dart';
@@ -88,7 +89,10 @@ class HomePage extends StatelessWidget {
           const SizedBox(height: 8),
         ],
         const SizedBox(height: 16),
-        RecipeSuggestionBanner(recipeCount: RecipesMockData.recipes.length, onTap: onSeeRecipes),
+        RecipeSuggestionBanner(
+          recipeCount: receitasComEstoque(RecipesMockData.recipes, produtos).where((c) => c.urgentes.isNotEmpty).length,
+          onTap: onSeeRecipes,
+        ),
       ],
     );
   }
