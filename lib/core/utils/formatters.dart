@@ -25,3 +25,6 @@ const _months = [
 
 /// Formata mês e ano: "Novembro 2026"
 String formatMonthYear(DateTime d) => '${_months[d.month - 1]} ${d.year}';
+
+/// Mês abreviado: "Nov"
+String formatMonthShort(DateTime d) => _months[d.month - 1].substring(0, 3);

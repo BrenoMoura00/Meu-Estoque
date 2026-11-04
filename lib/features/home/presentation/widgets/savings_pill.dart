@@ -60,7 +60,7 @@ class SavingsPill extends StatelessWidget {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
           decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(999)),
-          child: Text('+$growthPercent%', style: AppTextStyles.caption.copyWith(color: AppColors.primary)),
+          child: Text('${growthPercent >= 0 ? '+' : ''}$growthPercent%', style: AppTextStyles.caption.copyWith(color: AppColors.primary)),
         ),
       ],
     );

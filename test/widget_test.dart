@@ -6,6 +6,9 @@ import 'package:meu_estoque/features/stock/presentation/widgets/stock_item_card.
 import 'package:meu_estoque/features/waste_report/presentation/widgets/waste_item_card.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:meu_estoque/data/estoque_store.dart';
+import 'package:meu_estoque/data/relatorios.dart';
+import 'package:meu_estoque/features/consumption_history/data/consumption_mock_data.dart';
+import 'package:meu_estoque/features/waste_report/data/waste_mock_data.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:meu_estoque/main.dart';
 import 'package:meu_estoque/models/product.dart';
@@ -131,10 +134,13 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('Registrar como Desperdiçado'));
     await tester.pumpAndSettle();
+    expect(find.text('Por que descartar?'), findsOneWidget);
+    await tester.tap(find.text('Vencimento').last);
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Ver relatório'));
     await tester.pumpAndSettle();
     expect(find.text('Desperdício de Alimentos'), findsOneWidget);
-    expect(find.text('R\$ 201,36'), findsOneWidget);
+    expect(find.text('R\$ 214,26'), findsOneWidget);
     expect(find.byType(WasteItemCard), findsNWidgets(6));
 
     await tester.tap(find.text('Ver Receitas Rápidas'));
@@ -168,12 +174,12 @@ void main() {
     await tester.tap(find.text('Consumir'));
     await tester.pumpAndSettle();
     expect(find.byType(StockItemCard), findsNothing);
-    expect(estoque.movimentos.single.nome, 'Feijão Carioca Nobre');
+    expect(estoque.movimentos.last.nome, 'Feijão Carioca Nobre');
 
     await tester.tap(find.text('Desfazer'));
     await tester.pumpAndSettle();
     expect(find.text('Feijão Carioca Nobre'), findsOneWidget);
-    expect(estoque.movimentos, isEmpty);
+    expect(estoque.movimentos.any((m) => m.nome == 'Feijão Carioca Nobre'), isFalse);
   });
 
   test('Estoque persiste no aparelho', () async {
@@ -187,5 +193,19 @@ void main() {
     await Future<void>.delayed(Duration.zero);
     await estoque.load(); // relê do shared_preferences
     expect(estoque.produtos.any((p) => p.name == 'Café' && p.daysToExpire == 30), isTrue);
+  });
+
+  test('Relatórios calculados a partir das movimentações de exemplo', () {
+    final d = resumoDesperdicio(estoque.movimentos, estoque.now());
+    expect(d.total, closeTo(201.36, 0.001));
+    expect(d.variacao, closeTo(42, 0.001));
+    expect(d.pesoKg, closeTo(3.2, 0.001));
+    expect(d.porMotivo[WasteReason.sobras], closeTo(50.30, 0.001));
+    expect(d.recentes.first.name, 'Queijo Brie 200g');
+
+    final c = resumoConsumo(estoque.movimentos, ConsumptionPeriod.thisMonth, estoque.now());
+    expect(c.porItem.first.name, 'Leite Integral');
+    expect(c.porItem.first.times, 14);
+    expect(c.porItem, hasLength(6));
   });
 }

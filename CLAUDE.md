@@ -8,6 +8,8 @@ Idioma da UI e dos nomes de domínio: **português (pt-BR)**. Código (classes, 
 2. **Modo apresentação** (ver `PLANO_BACKEND.md`): lógica só local, sem back-end.
    - Estado central: `lib/data/estoque_store.dart` (`estoque`, `ChangeNotifier` + `shared_preferences`).
    - Telas leem `estoque.produtos`/`porId`/`recentes` e escutam mudanças; ações em `shared/widgets/stock_actions.dart`.
+   - Relatórios (Histórico, Desperdício, economia da Início) calculados em `lib/data/relatorios.dart` a partir de `estoque.movimentos`.
+   - Descarte sempre pergunta o motivo (`shared/widgets/discard_reason_sheet.dart`).
    - Testes: `SharedPreferences.setMockInitialValues({})` + `await estoque.load()` no `setUp`.
    - Não adicionar Riverpod/Drift/back-end sem pedido.
 

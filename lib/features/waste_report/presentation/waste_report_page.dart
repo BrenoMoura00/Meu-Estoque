@@ -4,9 +4,10 @@ import '../../../core/constants/app_assets.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
 import '../../../core/utils/formatters.dart';
+import '../../../data/estoque_store.dart';
+import '../../../data/relatorios.dart';
 import '../../../shared/widgets/app_title_top_bar.dart';
 import '../../add_product/data/add_product_options.dart';
-import '../data/waste_mock_data.dart';
 import 'widgets/avoid_waste_tip_card.dart';
 import 'widgets/loss_summary_card.dart';
 import 'widgets/waste_item_card.dart';
@@ -27,7 +28,8 @@ class WasteReportPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final recent = WasteMockData.recent;
+    final resumo = resumoDesperdicio(estoque.movimentos, estoque.now());
+    final recent = resumo.recentes;
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -46,13 +48,13 @@ class WasteReportPage extends StatelessWidget {
             padding: EdgeInsets.fromLTRB(20, padding.top + 16, 20, padding.bottom + 48),
             children: [
               LossSummaryCard(
-                total: WasteMockData.totalLoss,
-                delta: WasteMockData.deltaVsLastMonth,
-                discardedCount: WasteMockData.discardedCount,
-                weightKg: WasteMockData.weightKg,
+                total: resumo.total,
+                delta: resumo.variacao,
+                discardedCount: resumo.quantidade,
+                weightKg: resumo.pesoKg,
               ),
               const SizedBox(height: 24),
-              WasteReasonsCard(byReason: WasteMockData.byReason, periodLabel: formatMonthYear(DateTime.now())),
+              WasteReasonsCard(byReason: resumo.porMotivo, periodLabel: formatMonthYear(DateTime.now())),
               const SizedBox(height: 28),
               Row(
                 children: [

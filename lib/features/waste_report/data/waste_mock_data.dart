@@ -104,7 +104,7 @@ abstract final class WasteMockData {
       reason: WasteReason.deteriorado,
       detail: 'Mofo no pacote',
       place: 'Despensa',
-      value: 12.80,
+      value: 3.76,
       outcome: 'Mofado',
     ),
     WasteEntry(
