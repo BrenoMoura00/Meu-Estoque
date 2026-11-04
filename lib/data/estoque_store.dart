@@ -210,6 +210,7 @@ String _data(DateTime d) =>
 class EstoqueStore extends ChangeNotifier {
   static const _keyItens = 'estoque.itens.v2';
   static const _keyMovs = 'estoque.movimentos.v2';
+  static const _keyFavoritas = 'estoque.favoritas.v1';
 
   /// Relógio injetável (testes).
   DateTime Function() now = DateTime.now;
@@ -217,6 +218,16 @@ class EstoqueStore extends ChangeNotifier {
   SharedPreferences? _prefs;
   final List<_ItemRecord> _itens = [];
   final List<Movimento> _movimentos = [];
+  final Set<String> _favoritas = {};
+
+  /// Receitas favoritas (pelo nome).
+  Set<String> get favoritas => Set.unmodifiable(_favoritas);
+
+  void alternarFavorita(String receita) {
+    if (!_favoritas.remove(receita)) _favoritas.add(receita);
+    _changed();
+  }
+
   int _seq = 0;
 
   DateTime get hoje {
@@ -252,6 +263,9 @@ class EstoqueStore extends ChangeNotifier {
     _prefs = await SharedPreferences.getInstance();
     _itens.clear();
     _movimentos.clear();
+    _favoritas
+      ..clear()
+      ..addAll(_prefs!.getStringList(_keyFavoritas) ?? const []);
     final raw = _prefs!.getString(_keyItens);
     if (raw == null) {
       _seed();
@@ -384,6 +398,7 @@ class EstoqueStore extends ChangeNotifier {
     if (prefs == null) return;
     await prefs.setString(_keyItens, jsonEncode([for (final i in _itens) i.toJson()]));
     await prefs.setString(_keyMovs, jsonEncode([for (final m in _movimentos) m.toJson()]));
+    await prefs.setStringList(_keyFavoritas, _favoritas.toList());
   }
 
   /// Histórico de exemplo: consumo deste mês e do anterior + descartes (somam os números do design).

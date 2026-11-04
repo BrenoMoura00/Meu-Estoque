@@ -2,10 +2,13 @@ import 'package:flutter/material.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
+import '../../../data/estoque_store.dart';
+import '../../../data/receitas.dart';
 import '../../../models/product.dart';
 import '../../../shared/widgets/choice_pill_bar.dart';
 import '../data/recipes_mock_data.dart';
 import 'widgets/recipe_card.dart';
+import 'widgets/recipe_steps_sheet.dart';
 import 'widgets/zero_waste_banner.dart';
 
 enum _RecipeFilter { todos, vencendoHoje, rapidas, vegetariano, sobremesas, semGluten }
@@ -25,7 +28,6 @@ class _RecipesPageState extends State<RecipesPage> {
   static const _quickMinutes = 15;
 
   _RecipeFilter _filter = _RecipeFilter.todos;
-  final _favorites = <String>{};
 
   bool _matches(Recipe r, _RecipeFilter f) => switch (f) {
     _RecipeFilter.todos => true,
@@ -36,7 +38,7 @@ class _RecipesPageState extends State<RecipesPage> {
     _RecipeFilter.semGluten => r.tags.contains(RecipeTag.semGluten),
   };
 
-  int _count(_RecipeFilter f) => RecipesMockData.recipes.where((r) => _matches(r, f)).length;
+  int _count(List<ReceitaCalculada> todas, _RecipeFilter f) => todas.where((c) => _matches(c.receita, f)).length;
 
   void _toast(String message) {
     ScaffoldMessenger.of(context)
@@ -45,16 +47,24 @@ class _RecipesPageState extends State<RecipesPage> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) =>
+      ListenableBuilder(listenable: estoque, builder: (context, _) => _build(context));
+
+  Widget _build(BuildContext context) {
     // O Scaffold do MainShell já inclui header e bottom nav neste padding.
     final padding = MediaQuery.paddingOf(context);
-    final recipes = RecipesMockData.recipes.where((r) => _matches(r, _filter)).toList();
+    final produtos = estoque.produtos;
+    final todas = receitasComEstoque(RecipesMockData.recipes, produtos);
+    final calcs = todas.where((c) => _matches(c.receita, _filter)).toList();
+    final recipes = [for (final c in calcs) c.receita];
+    final urgentes = produtos.where((p) => p.isExpiringSoon).toList();
+    final usadosUrgentes = {for (final c in todas) ...c.urgentes};
 
     final options = [
-      ChoicePill(_RecipeFilter.todos, 'Todos (${_count(_RecipeFilter.todos)})'),
+      ChoicePill(_RecipeFilter.todos, 'Todos (${_count(todas, _RecipeFilter.todos)})'),
       ChoicePill(
         _RecipeFilter.vencendoHoje,
-        'Vencendo Hoje (${_count(_RecipeFilter.vencendoHoje)})',
+        'Vencendo Hoje (${_count(todas, _RecipeFilter.vencendoHoje)})',
         dotColor: AppColors.rose500,
       ),
       const ChoicePill(_RecipeFilter.rapidas, '⚡ Até $_quickMinutes min'),
@@ -67,9 +77,12 @@ class _RecipesPageState extends State<RecipesPage> {
       padding: EdgeInsets.fromLTRB(16, padding.top + 16, 16, padding.bottom + 32),
       children: [
         ZeroWasteBanner(
-          savings: RecipesMockData.potentialSavings,
-          urgentItems: RecipesMockData.urgentItems,
-          urgentToday: RecipesMockData.urgentToday,
+          savings: usadosUrgentes.fold(0.0, (s, p) => s + p.price),
+          urgentItems: [for (final p in urgentes) p.name],
+          urgentToday: {
+            for (final p in urgentes)
+              if (p.expiresToday) p.name,
+          },
           onSeeItems: widget.onSeeUrgentItems,
         ),
         const SizedBox(height: 20),
@@ -88,13 +101,9 @@ class _RecipesPageState extends State<RecipesPage> {
           if (i > 0) const SizedBox(height: 16),
           RecipeCard(
             recipe: recipes[i],
-            isFavorite: _favorites.contains(recipes[i].name),
-            onToggleFavorite: () => setState(() {
-              final name = recipes[i].name;
-              _favorites.contains(name) ? _favorites.remove(name) : _favorites.add(name);
-            }),
-            // TODO: abrir a tela de preparo quando existir.
-            onOpen: () => _toast('Modo de preparo em breve'),
+            isFavorite: estoque.favoritas.contains(recipes[i].name),
+            onToggleFavorite: () => estoque.alternarFavorita(recipes[i].name),
+            onOpen: () => mostrarPreparo(context, calcs[i], produtos),
             // TODO: integrar com a lista de compras.
             onAddMissing: () => _toast('${recipes[i].missingIngredients.join(', ')} adicionado à lista de compras'),
           ),

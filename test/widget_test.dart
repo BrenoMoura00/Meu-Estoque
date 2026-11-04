@@ -6,7 +6,9 @@ import 'package:meu_estoque/features/stock/presentation/widgets/stock_item_card.
 import 'package:meu_estoque/features/waste_report/presentation/widgets/waste_item_card.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:meu_estoque/data/estoque_store.dart';
+import 'package:meu_estoque/data/receitas.dart';
 import 'package:meu_estoque/data/relatorios.dart';
+import 'package:meu_estoque/features/recipes/data/recipes_mock_data.dart';
 import 'package:meu_estoque/features/consumption_history/data/consumption_mock_data.dart';
 import 'package:meu_estoque/features/waste_report/data/waste_mock_data.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -89,13 +91,20 @@ void main() {
     expect(find.text('Alerta de Desperdício Zero'), findsOneWidget);
     expect(find.byType(RecipeCard), findsNWidgets(5));
 
-    await tester.tap(find.text('Vencendo Hoje (2)'));
+    await tester.tap(find.text('Vencendo Hoje (4)'));
     await tester.pumpAndSettle();
-    expect(find.byType(RecipeCard), findsNWidgets(2));
+    expect(find.byType(RecipeCard), findsNWidgets(4));
 
     await tester.tap(find.byTooltip('Favoritar').first);
     await tester.pump();
     expect(find.byTooltip('Remover dos favoritos'), findsOneWidget);
+    expect(estoque.favoritas, hasLength(1));
+
+    // Ver Preparo mostra ingredientes cruzados com o estoque.
+    await tester.tap(find.text('Ver Preparo').first);
+    await tester.pumpAndSettle();
+    expect(find.text('Modo de preparo'), findsOneWidget);
+    expect(find.text('Básico da despensa'), findsWidgets);
   });
 
   testWidgets('Detalhes do Item: abre pelo card do estoque e marca como consumido', (tester) async {
@@ -207,5 +216,21 @@ void main() {
     expect(c.porItem.first.name, 'Leite Integral');
     expect(c.porItem.first.times, 14);
     expect(c.porItem, hasLength(6));
+  });
+
+  test('Receitas cruzam com o estoque', () {
+    Recipe receita(String nome) => receitasComEstoque(
+      RecipesMockData.recipes,
+      estoque.produtos,
+    ).firstWhere((c) => c.receita.name.startsWith(nome)).receita;
+
+    expect(receita('Omelete').hasAllIngredients, isTrue);
+    expect(receita('Molho').missingIngredients, ['Manjericão']);
+
+    // Sem tomate no estoque, a omelete passa a pedir tomate.
+    for (final p in estoque.produtos.where((p) => p.name.contains('Tomate'))) {
+      estoque.consumir(p.id!);
+    }
+    expect(receita('Omelete').missingIngredients, ['Tomate']);
   });
 }
