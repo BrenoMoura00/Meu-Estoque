@@ -49,3 +49,4 @@ app.*.map.json
 
 # Documentos locais (não versionar)
 PLANO_BACKEND.md
+CLAUDE.md
