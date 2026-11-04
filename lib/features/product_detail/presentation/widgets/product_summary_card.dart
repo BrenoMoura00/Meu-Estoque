@@ -1,3 +1,4 @@
+import '../../../../shared/widgets/product_image.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_assets.dart';
@@ -28,7 +29,7 @@ class ProductSummaryCard extends StatelessWidget {
                 children: [
                   ColoredBox(
                     color: AppColors.surfaceLow,
-                    child: Image.asset(product.photoPath ?? product.imagePath, fit: BoxFit.cover),
+                    child: ProductImage(product.photoPath ?? product.imagePath),
                   ),
                   Positioned(
                     right: 4,

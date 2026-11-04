@@ -1,3 +1,4 @@
+import '../../../../shared/widgets/product_image.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_assets.dart';
@@ -33,7 +34,7 @@ class RecentItemCard extends StatelessWidget {
                   width: 48,
                   height: 48,
                   color: AppColors.surfaceContainer,
-                  child: Image.asset(product.imagePath, fit: BoxFit.cover),
+                  child: ProductImage(product.imagePath),
                 ),
               ),
               const SizedBox(width: 12),

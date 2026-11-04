@@ -11,6 +11,7 @@ Idioma da UI e dos nomes de domínio: **português (pt-BR)**. Código (classes, 
    - Relatórios (Histórico, Desperdício, economia da Início) calculados em `lib/data/relatorios.dart` a partir de `estoque.movimentos`.
    - Descarte sempre pergunta o motivo (`shared/widgets/discard_reason_sheet.dart`).
    - Receitas cruzam com o estoque em `lib/data/receitas.dart` (ingredientes com `termos` em `recipes_mock_data.dart`); favoritas em `estoque.favoritas`.
+   - Fotos: `lib/data/fotos.dart` (image_picker; salva em `<documentos>/fotos/`, item guarda caminho relativo). Exibir imagens de produto sempre com `shared/widgets/product_image.dart` (`ProductImage`), nunca `Image.asset` direto.
    - Testes: `SharedPreferences.setMockInitialValues({})` + `await estoque.load()` no `setUp`.
    - Não adicionar Riverpod/Drift/back-end sem pedido.
 

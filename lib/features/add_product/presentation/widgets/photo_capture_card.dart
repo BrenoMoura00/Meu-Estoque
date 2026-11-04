@@ -5,10 +5,14 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../shared/widgets/app_svg.dart';
 import '../../../../shared/widgets/form_widgets.dart';
+import '../../../../shared/widgets/product_image.dart';
 
 /// Área "Foto do Produto" com botões Tirar Foto / Galeria.
 class PhotoCaptureCard extends StatelessWidget {
-  const PhotoCaptureCard({super.key, this.onTakePhoto, this.onPickFromGallery});
+  const PhotoCaptureCard({super.key, this.onTakePhoto, this.onPickFromGallery, this.photoPath});
+
+  /// Foto já escolhida (mostra a prévia no lugar do ícone).
+  final String? photoPath;
 
   final VoidCallback? onTakePhoto;
   final VoidCallback? onPickFromGallery;
@@ -24,21 +28,28 @@ class PhotoCaptureCard extends StatelessWidget {
       ),
       child: Container(
         padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.8),
-          borderRadius: BorderRadius.circular(8),
-        ),
+        decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.8), borderRadius: BorderRadius.circular(8)),
         child: Column(
           children: [
-            Container(
-              width: 64,
-              height: 64,
-              alignment: Alignment.center,
-              decoration: BoxDecoration(color: AppColors.mint.withValues(alpha: 0.4), shape: BoxShape.circle),
-              child: const AppSvg(AppIcons.cameraLarge, width: 26.7, height: 24),
-            ),
+            if (photoPath != null)
+              ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: ProductImage(photoPath!, width: double.infinity, height: 160),
+              )
+            else
+              Container(
+                width: 64,
+                height: 64,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(color: AppColors.mint.withValues(alpha: 0.4), shape: BoxShape.circle),
+                child: const AppSvg(AppIcons.cameraLarge, width: 26.7, height: 24),
+              ),
             const SizedBox(height: 8),
-            Text('Foto do Produto', style: AppTextStyles.title, textAlign: TextAlign.center),
+            Text(
+              photoPath == null ? 'Foto do Produto' : 'Foto adicionada',
+              style: AppTextStyles.title,
+              textAlign: TextAlign.center,
+            ),
             const SizedBox(height: 4),
             ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 260),
@@ -53,7 +64,7 @@ class PhotoCaptureCard extends StatelessWidget {
               children: [
                 Expanded(
                   child: _PhotoButton(
-                    label: 'Tirar Foto',
+                    label: photoPath == null ? 'Tirar Foto' : 'Tirar outra',
                     icon: AppIcons.camera,
                     iconSize: const Size(15, 13.5),
                     background: AppColors.primary,
@@ -64,7 +75,7 @@ class PhotoCaptureCard extends StatelessWidget {
                 const SizedBox(width: 8),
                 Expanded(
                   child: _PhotoButton(
-                    label: 'Galeria',
+                    label: photoPath == null ? 'Galeria' : 'Trocar',
                     icon: AppIcons.gallery,
                     iconSize: const Size(13.5, 13.5),
                     background: AppColors.surfaceHigh,

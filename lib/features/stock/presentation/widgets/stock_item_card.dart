@@ -1,3 +1,4 @@
+import '../../../../shared/widgets/product_image.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_assets.dart';
@@ -180,7 +181,7 @@ class _Thumb extends StatelessWidget {
         child: Stack(
           fit: StackFit.expand,
           children: [
-            Image.asset(imagePath, fit: BoxFit.cover),
+            ProductImage(imagePath),
             Positioned(
               right: 4,
               bottom: 4,

@@ -12,7 +12,10 @@ import 'package:meu_estoque/features/recipes/data/recipes_mock_data.dart';
 import 'package:meu_estoque/features/consumption_history/data/consumption_mock_data.dart';
 import 'package:meu_estoque/features/waste_report/data/waste_mock_data.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:meu_estoque/core/constants/app_assets.dart';
+import 'package:meu_estoque/features/add_product/presentation/widgets/photo_capture_card.dart';
 import 'package:meu_estoque/main.dart';
+import 'package:meu_estoque/shared/widgets/product_image.dart';
 import 'package:meu_estoque/models/product.dart';
 
 void main() {
@@ -232,5 +235,14 @@ void main() {
       estoque.consumir(p.id!);
     }
     expect(receita('Omelete').missingIngredients, ['Tomate']);
+  });
+
+  testWidgets('Card de foto mostra a prévia quando há foto', (tester) async {
+    await tester.pumpWidget(
+      const MaterialApp(home: Scaffold(body: SingleChildScrollView(child: PhotoCaptureCard(photoPath: AppImages.logo)))),
+    );
+    expect(find.text('Foto adicionada'), findsOneWidget);
+    expect(find.text('Tirar outra'), findsOneWidget);
+    expect(find.byType(ProductImage), findsOneWidget);
   });
 }

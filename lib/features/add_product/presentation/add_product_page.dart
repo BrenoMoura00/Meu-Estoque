@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import '../../../core/constants/app_assets.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
+import '../../../data/fotos.dart';
 import '../../../data/estoque_store.dart';
 import '../../../models/product.dart';
 import '../../../shared/widgets/app_detail_top_bar.dart';
@@ -39,6 +40,21 @@ class _AddProductPageState extends State<AddProductPage> {
   String _unit = AddProductOptions.units.first;
   StorageLocation _location = StorageLocation.geladeira;
   bool _showNameError = false;
+  String? _photo;
+
+  Future<void> _pickPhoto({required bool camera}) async {
+    try {
+      final path = await Fotos.escolher(camera: camera);
+      if (path != null && mounted) setState(() => _photo = path);
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          SnackBar(content: Text(camera ? 'Não foi possível abrir a câmera' : 'Não foi possível abrir a galeria')),
+        );
+    }
+  }
 
   @override
   void initState() {
@@ -77,7 +93,7 @@ class _AddProductPageState extends State<AddProductPage> {
       venceEm: _expiry!,
       price: price,
       category: _category,
-      imagePath: AppImages.logo,
+      imagePath: _photo ?? AppImages.logo,
     );
     Navigator.of(context).pop();
     messenger.showSnackBar(
@@ -101,7 +117,11 @@ class _AddProductPageState extends State<AddProductPage> {
         child: ListView(
           padding: EdgeInsets.fromLTRB(16, padding.top, 16, 24),
           children: [
-            const PhotoCaptureCard(),
+            PhotoCaptureCard(
+              photoPath: _photo,
+              onTakePhoto: () => _pickPhoto(camera: true),
+              onPickFromGallery: () => _pickPhoto(camera: false),
+            ),
             const SizedBox(height: 16),
             LabeledField(
               label: FormFieldLabel(
