@@ -132,18 +132,18 @@ class _ItemRecord {
   }
 
   final String id;
-  final String name;
+  String name;
   String quantity;
   late double amount;
   late String measureUnit;
-  final String imagePath;
-  final StorageLocation location;
+  String imagePath;
+  StorageLocation location;
   final String spot;
-  final DateTime venceEm;
+  DateTime venceEm;
   final DateTime compradoEm;
   final DateTime criadoEm;
   double price;
-  final String? category;
+  String? category;
   final String? brand;
   final String? variant;
   int units;
@@ -361,6 +361,37 @@ class EstoqueStore extends ChangeNotifier {
     _itens.add(record);
     _changed();
     return record.id;
+  }
+
+  /// Edita um registro existente sem criar outro item ou movimento de consumo.
+  bool editar({
+    required String id,
+    required String name,
+    required double amount,
+    required String measureUnit,
+    required StorageLocation location,
+    required DateTime venceEm,
+    required double price,
+    required String category,
+    String? imagePath,
+  }) {
+    final item = _find(id);
+    if (item == null || name.trim().isEmpty || !amount.isFinite || amount <= 0 ||
+        !price.isFinite || price < 0) return false;
+    final whole = measureUnit == 'Unidade(s)' || measureUnit == 'Pacote(s)';
+    if (whole && amount != amount.roundToDouble()) return false;
+    item.name = name.trim();
+    item.amount = amount;
+    item.measureUnit = measureUnit;
+    item.units = whole ? amount.round() : 1;
+    item.location = location;
+    item.venceEm = DateTime(venceEm.year, venceEm.month, venceEm.day);
+    item.price = price;
+    item.category = category;
+    if (imagePath != null) item.imagePath = imagePath;
+    item.refreshQuantity();
+    _changed();
+    return true;
   }
 
   /// Ajusta unidades. Diminuir registra o consumo das unidades retiradas; mínimo 1.

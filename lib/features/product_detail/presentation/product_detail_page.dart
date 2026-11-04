@@ -10,6 +10,7 @@ import '../../../shared/widgets/stock_actions.dart';
 import '../../../shared/widgets/app_detail_top_bar.dart';
 import '../../../shared/widgets/app_svg.dart';
 import '../../add_product/data/add_product_options.dart';
+import '../../add_product/presentation/add_product_page.dart';
 import '../../waste_report/presentation/waste_report_page.dart';
 import 'widgets/consumption_notes_card.dart';
 import 'widgets/expiry_palette.dart';
@@ -88,7 +89,12 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                   const Spacer(),
                   _IconAction(
                     tooltip: 'Editar produto',
-                    onTap: () {},
+                    onTap: () {
+                      if (p.id == null) return;
+                      Navigator.of(context).push(
+                        MaterialPageRoute<void>(builder: (_) => AddProductPage(product: p)),
+                      );
+                    },
                     child: const AppSvg(AppIcons.edit, width: 15, height: 15),
                   ),
                   const SizedBox(width: 4),
