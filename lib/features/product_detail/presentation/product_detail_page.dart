@@ -4,7 +4,9 @@ import '../../../core/constants/app_assets.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
 import '../../../core/utils/formatters.dart';
+import '../../../data/estoque_store.dart';
 import '../../../models/product.dart';
+import '../../../shared/widgets/stock_actions.dart';
 import '../../../shared/widgets/app_detail_top_bar.dart';
 import '../../../shared/widgets/app_svg.dart';
 import '../../add_product/data/add_product_options.dart';
@@ -30,11 +32,27 @@ class ProductDetailPage extends StatefulWidget {
 }
 
 class _ProductDetailPageState extends State<ProductDetailPage> {
-  late int _units = widget.product.units;
+  /// Versão atual do item no estoque (cai no recebido se já saiu do estoque).
+  Product get _product => (widget.product.id == null ? null : estoque.porId(widget.product.id!)) ?? widget.product;
 
-  Product get _product => widget.product;
+  int get _units => _product.units;
 
-  // TODO: persistir consumo/desperdício quando houver back-end.
+  void _onStoreChanged() {
+    if (mounted) setState(() {});
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    estoque.addListener(_onStoreChanged);
+  }
+
+  @override
+  void dispose() {
+    estoque.removeListener(_onStoreChanged);
+    super.dispose();
+  }
+
   void _finish(String message, {SnackBarAction Function(NavigatorState nav)? action}) {
     final messenger = ScaffoldMessenger.of(context);
     final nav = Navigator.of(context)..pop();
@@ -120,7 +138,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                 ),
               ),
               const SizedBox(height: 8),
-              StockUnitsCard(units: _units, onChanged: (v) => setState(() => _units = v)),
+              StockUnitsCard(units: _units, onChanged: (v) { if (_product.id != null) estoque.ajustarUnidades(_product.id!, v); }),
               const SizedBox(height: 8),
               Row(
                 children: [
@@ -151,7 +169,11 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                 background: AppColors.primary,
                 foreground: Colors.white,
                 elevated: true,
-                onTap: () => _finish('"${p.name}" marcado como consumido'),
+                onTap: () {
+                  final messenger = ScaffoldMessenger.of(context);
+                  Navigator.of(context).pop();
+                  consumirComDesfazer(context, p, messenger: messenger);
+                },
               ),
               const SizedBox(height: 8),
               _ActionButton(
@@ -159,7 +181,10 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                 icon: const AppSvg(AppIcons.trashLarge, width: 13.33, height: 15),
                 background: AppColors.errorContainerSolid,
                 foreground: AppColors.onErrorContainer,
-                onTap: () => _finish('"${p.name}" registrado como desperdício', action: _seeWasteReport),
+                onTap: () {
+                  if (p.id != null) estoque.descartar(p.id!);
+                  _finish('"${p.name}" registrado como desperdício', action: _seeWasteReport);
+                },
               ),
             ],
           );

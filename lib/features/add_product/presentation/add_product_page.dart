@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import '../../../core/constants/app_assets.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
+import '../../../data/estoque_store.dart';
 import '../../../models/product.dart';
 import '../../../shared/widgets/app_detail_top_bar.dart';
 import '../../../shared/widgets/app_svg.dart';
@@ -19,7 +20,7 @@ import 'widgets/quantity_unit_row.dart';
 import 'widgets/storage_selector.dart';
 
 /// Tela "Adicionar Item" (Figma node 12:496), aberta pelo botão "+".
-/// Fase visual: valida o nome e fecha a tela; ainda não persiste o item.
+/// Valida nome e validade e salva no estoque local ([estoque]).
 class AddProductPage extends StatefulWidget {
   const AddProductPage({super.key});
 
@@ -59,8 +60,25 @@ class _AddProductPageState extends State<AddProductPage> {
       setState(() => _showNameError = true);
       return;
     }
-    // TODO: persistir o item quando houver repositório/back-end.
     final messenger = ScaffoldMessenger.of(context);
+    if (_expiry == null) {
+      messenger
+        ..hideCurrentSnackBar()
+        ..showSnackBar(const SnackBar(content: Text('Informe a data de validade')));
+      return;
+    }
+    final isUnit = _unit == AddProductOptions.units.first;
+    final price = double.tryParse(_priceController.text.replaceAll('.', '').replaceAll(',', '.')) ?? 0;
+    estoque.adicionar(
+      name: _nameController.text.trim(),
+      quantity: isUnit ? (_quantity == 1 ? '1 unidade' : '$_quantity unidades') : '$_quantity $_unit',
+      units: isUnit ? _quantity : 1,
+      location: _location,
+      venceEm: _expiry!,
+      price: price,
+      category: _category,
+      imagePath: AppImages.logo,
+    );
     Navigator.of(context).pop();
     messenger.showSnackBar(
       SnackBar(

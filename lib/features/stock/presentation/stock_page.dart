@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
 import '../../../models/product.dart';
+import '../../../data/estoque_store.dart';
+import '../../../shared/widgets/stock_actions.dart';
 import '../../product_detail/presentation/product_detail_page.dart';
 import '../data/stock_mock_data.dart';
 import 'widgets/location_segmented_control.dart';
@@ -29,7 +31,21 @@ class _StockPageState extends State<StockPage> {
   static const _soon = 'em_breve';
   static const _ok = 'no_prazo';
 
-  final List<Product> _items = StockMockData.items;
+  List<Product> get _items => estoque.produtos;
+
+  void _onStoreChanged() => setState(() {});
+
+  @override
+  void initState() {
+    super.initState();
+    estoque.addListener(_onStoreChanged);
+  }
+
+  @override
+  void dispose() {
+    estoque.removeListener(_onStoreChanged);
+    super.dispose();
+  }
 
   String _query = '';
   StorageLocation? _location;
@@ -139,6 +155,8 @@ class _StockPageState extends State<StockPage> {
                   separatorBuilder: (_, _) => const SizedBox(height: 8),
                   itemBuilder: (_, i) => StockItemCard(
                     product: visible[i],
+                    onConsume: () => consumirComDesfazer(context, visible[i]),
+                    onDiscard: () => descartarComDesfazer(context, visible[i]),
                     onTap: () => Navigator.of(context).push(
                       MaterialPageRoute<void>(builder: (_) => ProductDetailPage(product: visible[i], onSeeRecipes: widget.onSeeRecipes)),
                     ),

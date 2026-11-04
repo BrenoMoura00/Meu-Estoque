@@ -5,10 +5,17 @@ import 'package:meu_estoque/features/recipes/presentation/widgets/recipe_card.da
 import 'package:meu_estoque/features/stock/presentation/widgets/stock_item_card.dart';
 import 'package:meu_estoque/features/waste_report/presentation/widgets/waste_item_card.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:meu_estoque/data/estoque_store.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:meu_estoque/main.dart';
+import 'package:meu_estoque/models/product.dart';
 
 void main() {
   setUpAll(() => GoogleFonts.config.allowRuntimeFetching = false);
+  setUp(() async {
+    SharedPreferences.setMockInitialValues({});
+    await estoque.load();
+  });
 
   testWidgets('Tela Início renderiza as seções principais', (tester) async {
     await tester.pumpWidget(const MeuEstoqueApp());
@@ -39,6 +46,12 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Adicionar Item'), findsNothing);
     expect(find.text('"Tomate Italiano" salvo no estoque'), findsOneWidget);
+
+    await tester.tap(find.text('Estoque').last);
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextField), 'italiano');
+    await tester.pumpAndSettle();
+    expect(find.text('Tomate Italiano'), findsOneWidget);
   });
 
   testWidgets('Histórico de Consumo: abre pela economia do mês e troca de visão', (tester) async {
@@ -131,18 +144,18 @@ void main() {
   });
 
   testWidgets('Estoque filtra por status e por busca', (tester) async {
-    tester.view.physicalSize = const Size(390 * 3, 2400 * 3);
+    tester.view.physicalSize = const Size(390 * 3, 4000 * 3);
     tester.view.devicePixelRatio = 3;
     addTearDown(tester.view.reset);
 
     await tester.pumpWidget(const MeuEstoqueApp());
     await tester.tap(find.text('Estoque').last);
     await tester.pumpAndSettle();
-    expect(find.byType(StockItemCard), findsNWidgets(6));
+    expect(find.byType(StockItemCard), findsNWidgets(13));
 
     await tester.tap(find.text('Vence Hoje'));
     await tester.pumpAndSettle();
-    expect(find.byType(StockItemCard), findsOneWidget);
+    expect(find.byType(StockItemCard), findsNWidgets(4));
     expect(find.text('Garrafa de Leite Integral'), findsOneWidget);
 
     await tester.tap(find.text('Todos').last);
@@ -150,5 +163,29 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byType(StockItemCard), findsOneWidget);
     expect(find.text('Feijão Carioca Nobre'), findsOneWidget);
+
+    // Consumir tira do estoque; Desfazer devolve.
+    await tester.tap(find.text('Consumir'));
+    await tester.pumpAndSettle();
+    expect(find.byType(StockItemCard), findsNothing);
+    expect(estoque.movimentos.single.nome, 'Feijão Carioca Nobre');
+
+    await tester.tap(find.text('Desfazer'));
+    await tester.pumpAndSettle();
+    expect(find.text('Feijão Carioca Nobre'), findsOneWidget);
+    expect(estoque.movimentos, isEmpty);
+  });
+
+  test('Estoque persiste no aparelho', () async {
+    estoque.adicionar(
+      name: 'Café',
+      quantity: '500g',
+      location: StorageLocation.despensa,
+      venceEm: estoque.hoje.add(const Duration(days: 30)),
+      imagePath: 'x',
+    );
+    await Future<void>.delayed(Duration.zero);
+    await estoque.load(); // relê do shared_preferences
+    expect(estoque.produtos.any((p) => p.name == 'Café' && p.daysToExpire == 30), isTrue);
   });
 }

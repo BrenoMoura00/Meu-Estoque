@@ -4,8 +4,12 @@ App Flutter de controle de alimentos em casa (validade, locais de armazenamento,
 Idioma da UI e dos nomes de domínio: **português (pt-BR)**. Código (classes, variáveis) pode misturar PT para domínio e EN para técnico.
 
 ## Fase atual
-1. **Visual primeiro**: telas a partir do Figma, com dados mock (`features/<tela>/data/*_mock_data.dart`).
-2. Depois: estado, navegação real, persistência e back-end. Não adicionar lógica de negócio/back-end antes de pedido.
+1. **Visual pronto**: todas as telas do Figma implementadas.
+2. **Modo apresentação** (ver `PLANO_BACKEND.md`): lógica só local, sem back-end.
+   - Estado central: `lib/data/estoque_store.dart` (`estoque`, `ChangeNotifier` + `shared_preferences`).
+   - Telas leem `estoque.produtos`/`porId`/`recentes` e escutam mudanças; ações em `shared/widgets/stock_actions.dart`.
+   - Testes: `SharedPreferences.setMockInitialValues({})` + `await estoque.load()` no `setUp`.
+   - Não adicionar Riverpod/Drift/back-end sem pedido.
 
 ## Estrutura
 ```

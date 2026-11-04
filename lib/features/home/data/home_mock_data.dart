@@ -13,6 +13,8 @@ abstract final class HomeMockData {
       spot: 'Porta',
       daysToExpire: 0,
       freshness: 0,
+      price: 5.49,
+      category: 'Laticínios',
     ),
     Product(
       name: 'Iogurte Nat.',
@@ -22,6 +24,8 @@ abstract final class HomeMockData {
       spot: 'Prateleira 1',
       daysToExpire: 0,
       freshness: 0,
+      price: 3.20,
+      category: 'Laticínios',
     ),
     Product(
       name: 'Tomate Rama',
@@ -31,6 +35,8 @@ abstract final class HomeMockData {
       spot: 'Gaveta 02',
       daysToExpire: 0,
       freshness: 0,
+      price: 9.51,
+      category: 'Hortifrúti',
     ),
   ];
 
@@ -62,6 +68,8 @@ abstract final class HomeMockData {
       spot: 'Gaveta 01',
       daysToExpire: 2,
       freshness: 0.70,
+      price: 21.90,
+      category: 'Carnes',
     ),
     Product(
       name: 'Pão Artesanal',
@@ -71,6 +79,8 @@ abstract final class HomeMockData {
       spot: 'Prateleira 2',
       daysToExpire: 3,
       freshness: 0.55,
+      price: 14.00,
+      category: 'Outros',
     ),
     Product(
       name: 'Suco de Laranja',
@@ -80,6 +90,8 @@ abstract final class HomeMockData {
       spot: 'Porta superior',
       daysToExpire: 5,
       freshness: 0.30,
+      price: 9.90,
+      category: 'Bebidas',
     ),
     Product(
       name: 'Queijo Parmesão',
@@ -89,6 +101,8 @@ abstract final class HomeMockData {
       spot: 'Queijeira',
       daysToExpire: 12,
       freshness: 0.15,
+      price: 32.00,
+      category: 'Laticínios',
     ),
   ];
 }

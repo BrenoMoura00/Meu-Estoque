@@ -46,7 +46,11 @@ class Product {
     this.units = 1,
     this.notes,
     this.photoPath,
+    this.id,
   });
+
+  /// Identificador no estoque (null em dados mock).
+  final String? id;
 
   /// Marca (ex.: "Piracanjuba")
   final String? brand;
