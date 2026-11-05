@@ -99,7 +99,7 @@ ResumoConsumo resumoConsumo(List<Movimento> movs, ConsumptionPeriod periodo, Dat
     porCategoria: agrupar((m) => m.categoria ?? 'Outros', porCategoria: true),
     dicaItens: [for (final e in topo) e.name],
     dicaPercentual: total == 0 ? 0 : (valorTopo * 100 / total).round(),
-    dicaEconomia: ((valorTopo * 0.10 / 5).round() * 5).toDouble().clamp(5, double.infinity),
+    dicaEconomia: total == 0 ? 0 : valorTopo * 0.10,
   );
 }
 

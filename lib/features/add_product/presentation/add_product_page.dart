@@ -23,7 +23,10 @@ import 'widgets/storage_selector.dart';
 /// Tela "Adicionar Item" (Figma node 12:496), aberta pelo botão "+".
 /// Valida nome e validade e salva no estoque local ([estoque]).
 class AddProductPage extends StatefulWidget {
-  const AddProductPage({super.key});
+  const AddProductPage({super.key, this.product});
+
+  /// Quando informado, abre o formulário no modo de edição.
+  final Product? product;
 
   @override
   State<AddProductPage> createState() => _AddProductPageState();
@@ -32,6 +35,7 @@ class AddProductPage extends StatefulWidget {
 class _AddProductPageState extends State<AddProductPage> {
   final _nameController = TextEditingController();
   final _priceController = TextEditingController();
+  final _amountController = TextEditingController(text: '1');
 
   String _category = AddProductOptions.categories.first.label;
   DateTime? _expiry;
@@ -59,15 +63,34 @@ class _AddProductPageState extends State<AddProductPage> {
   @override
   void initState() {
     super.initState();
+    final product = widget.product;
+    if (product != null) {
+      _nameController.text = product.name;
+      _priceController.text = product.price.toStringAsFixed(2).replaceAll('.', ',');
+      _category = product.category ?? AddProductOptions.categories.first.label;
+      _expiry = DateUtils.dateOnly(DateTime.now()).add(Duration(days: product.daysToExpire));
+      _unit = AddProductOptions.units.contains(product.measureUnit)
+          ? product.measureUnit!
+          : AddProductOptions.units.first;
+      final amount = product.amount ?? product.units.toDouble();
+      _quantity = (_unit == 'Unidade(s)' || _unit == 'Pacote(s)') ? amount.round() : 1;
+      _amountController.text = amount.toString().replaceAll('.', ',');
+      _location = product.location;
+      _photo = product.imagePath == AppImages.logo ? null : product.imagePath;
+    }
     _nameController.addListener(() => setState(() {
           if (_nameController.text.trim().isNotEmpty) _showNameError = false;
         }));
+    _amountController.addListener(_refreshTotal);
   }
+
+  void _refreshTotal() { if (mounted) setState(() {}); }
 
   @override
   void dispose() {
     _nameController.dispose();
     _priceController.dispose();
+    _amountController.dispose();
     super.dispose();
   }
 
@@ -83,12 +106,40 @@ class _AddProductPageState extends State<AddProductPage> {
         ..showSnackBar(const SnackBar(content: Text('Informe a data de validade')));
       return;
     }
-    final isUnit = _unit == AddProductOptions.units.first;
+    final isUnit = _unit == 'Unidade(s)' || _unit == 'Pacote(s)';
+    final perPackage = double.tryParse(_amountController.text.replaceAll(',', '.'));
+    final amount = isUnit ? _quantity.toDouble() : (perPackage == null ? null : perPackage * _quantity);
+    if (amount == null || !amount.isFinite || amount <= 0) {
+      messenger.showSnackBar(const SnackBar(content: Text('Informe uma quantidade maior que zero')));
+      return;
+    }
     final price = double.tryParse(_priceController.text.replaceAll('.', '').replaceAll(',', '.')) ?? 0;
+    if (widget.product?.id case final String id) {
+      final ok = estoque.editar(
+        id: id,
+        name: _nameController.text.trim(),
+        amount: amount,
+        measureUnit: _unit,
+        location: _location,
+        venceEm: _expiry!,
+        price: price,
+        category: _category,
+        imagePath: _photo,
+      );
+      if (!ok) {
+        messenger.showSnackBar(const SnackBar(content: Text('Não foi possível atualizar o produto')));
+        return;
+      }
+      Navigator.of(context).pop();
+      messenger.showSnackBar(const SnackBar(duration: Duration(seconds: 4), content: Text('Produto atualizado')));
+      return;
+    }
     estoque.adicionar(
       name: _nameController.text.trim(),
-      quantity: isUnit ? (_quantity == 1 ? '1 unidade' : '$_quantity unidades') : '$_quantity $_unit',
+      quantity: '${amount == amount.roundToDouble() ? amount.toInt() : amount} $_unit',
       units: isUnit ? _quantity : 1,
+      amount: amount,
+      measureUnit: _unit,
       location: _location,
       venceEm: _expiry!,
       price: price,
@@ -111,7 +162,7 @@ class _AddProductPageState extends State<AddProductPage> {
 
     return Scaffold(
       extendBodyBehindAppBar: true,
-      appBar: const AppDetailTopBar(title: 'Adicionar Item'),
+      appBar: AppDetailTopBar(title: widget.product == null ? 'Adicionar Item' : 'Editar Item'),
       body: GestureDetector(
         onTap: () => FocusScope.of(context).unfocus(),
         child: ListView(
@@ -165,6 +216,29 @@ class _AddProductPageState extends State<AddProductPage> {
               units: AddProductOptions.units,
               onUnitChanged: (u) => setState(() => _unit = u),
             ),
+            if (_unit != 'Unidade(s)' && _unit != 'Pacote(s)') ...[
+              const SizedBox(height: 8),
+              LabeledField(
+                label: FormFieldLabel('Medida por embalagem em $_unit (aceita decimais)'),
+                child: InputBox(
+                  child: TextField(
+                    controller: _amountController,
+                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                    decoration: bareInputDecoration(hint: 'Ex.: 1,5'),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 6),
+              Builder(builder: (context) {
+                final medida = double.tryParse(_amountController.text.replaceAll(',', '.'));
+                if (medida == null || !medida.isFinite || medida <= 0) return const SizedBox.shrink();
+                final total = medida * _quantity;
+                final texto = total == total.roundToDouble()
+                    ? total.toInt().toString()
+                    : total.toStringAsFixed(3).replaceFirst(RegExp(r'0+$'), '').replaceFirst(RegExp(r'\.$'), '').replaceAll('.', ',');
+                return Text('Total no estoque: $texto $_unit', style: AppTextStyles.caption);
+              }),
+            ],
             const SizedBox(height: 16),
             LabeledField(
               label: const FormFieldLabel('Local de Armazenamento'),

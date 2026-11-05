@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../../core/constants/app_assets.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
 import '../../../core/utils/formatters.dart';
@@ -27,12 +26,18 @@ class _ConsumptionHistoryPageState extends State<ConsumptionHistoryPage> {
   static const _side = 20.0;
 
   HistoryView _view = HistoryView.mostConsumed;
-  // TODO: filtrar os dados pelo período quando houver histórico real.
   ConsumptionPeriod _period = ConsumptionPeriod.thisMonth;
 
   @override
   Widget build(BuildContext context) {
     final padding = MediaQuery.paddingOf(context);
+    return ListenableBuilder(
+      listenable: estoque,
+      builder: (context, _) => _buildReport(context, padding),
+    );
+  }
+
+  Widget _buildReport(BuildContext context, EdgeInsets padding) {
     final resumo = resumoConsumo(estoque.movimentos, _period, estoque.now());
     final ranking = _view == HistoryView.mostConsumed ? resumo.porItem : resumo.porCategoria;
     final maxTimes = ranking.isEmpty ? 1 : ranking.first.times;
@@ -42,9 +47,6 @@ class _ConsumptionHistoryPageState extends State<ConsumptionHistoryPage> {
       extendBodyBehindAppBar: true,
       appBar: AppTitleTopBar(
         title: 'Histórico de Consumo',
-        actionIcon: AppIcons.filterFunnel,
-        actionTooltip: 'Filtrar histórico',
-        onAction: () {},
       ),
       body: Builder(
         // Builder para ler o padding já com a altura do header.
@@ -90,6 +92,11 @@ class _ConsumptionHistoryPageState extends State<ConsumptionHistoryPage> {
                 ],
               ),
               const SizedBox(height: 12),
+              if (ranking.isEmpty)
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 28),
+                  child: Center(child: Text('Nenhum consumo registrado neste período.')),
+                ),
               for (var i = 0; i < ranking.length; i++) ...[
                 if (i > 0) const SizedBox(height: 14),
                 ConsumptionRankCard(rank: i + 1, entry: ranking[i], frequency: ranking[i].times / maxTimes),
